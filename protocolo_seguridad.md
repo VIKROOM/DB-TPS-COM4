@@ -77,7 +77,7 @@ Get-ChildItem "C:\UTN\3er semestre\Bases de Datos II\UNIDAD 1\backups"
 
 > **Cuándo se salta:** no aplica. Siempre respaldo antes de DDL.
 
-> **Lugar donde vive el respaldo:** carpeta `backups/` dentro del repo, que se versiona y además se conserva localmente. Se usa `pg_dump` (respaldo lógico) porque es portable y legible.
+> **Lugar donde vive el respaldo:** carpeta `backups/` dentro del directorio del proyecto, que se conserva localmente (está excluida del repositorio Git por `.gitignore`, porque es un artefacto regenerable vía `pg_dump`). Se usa `pg_dump` (respaldo lógico) porque es portable y legible.
 
 ---
 

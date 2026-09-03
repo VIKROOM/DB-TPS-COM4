@@ -73,7 +73,7 @@ SESION A (REPEATABLE READ)
 >>> COUNT 2: 1        <-- NO ve la fila insertada por B (sin fantasma)
 SESION B: INSERT 0 1 / confirmo
 ```
-(Registrado en `salida_A.txt` del directorio del escenario 2.)
+(Registrado en `salida_A_rr.txt`; la corrida READ COMMITTED quedó en `salida_A_rc.txt`, ambas en el directorio del escenario 2.)
 
 ### Conclusión
 La IA **acertó**. Bajo `READ COMMITTED` el `count` cambió de 1 a 2 (fantasma); bajo `REPEATABLE READ` se mantuvo en 1. En PostgreSQL, `REPEATABLE READ` elimina también los fantasmas; la anomalía aparece en `READ COMMITTED`.

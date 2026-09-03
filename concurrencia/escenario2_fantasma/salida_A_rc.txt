@@ -1,0 +1,21 @@
+BEGIN
+SET
+>>> COUNT 1 (inicio):
+ pizzas 
+--------
+      1
+(1 fila)
+
+>>> A espera 5s mientras B inserta una pizza nueva y confirma...
+ pg_sleep 
+----------
+ 
+(1 fila)
+
+>>> COUNT 2 (misma transaccion, despues de COMMIT de B):
+ pizzas 
+--------
+      2
+(1 fila)
+
+COMMIT
