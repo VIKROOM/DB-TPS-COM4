@@ -1,0 +1,49 @@
+// Diagrama ER Food Store - Notacion: Pata de Gallo (Crow's Foot)
+// Pegar este archivo en https://dbdiagram.io para visualizarlo y exportarlo como PNG/PDF
+
+Table categoria {
+  id bigint [pk, increment]
+  nombre varchar [not null, unique]
+  activo boolean [not null, default: true]
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table producto {
+  id bigint [pk, increment]
+  categoria_id bigint [not null]
+  nombre varchar [not null]
+  descripcion text [null]
+  precio numeric [not null]
+  stock integer [not null, default: 0]
+  activo boolean [not null, default: true]
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table cliente {
+  id bigint [pk, increment]
+  nombre varchar [not null]
+  apellido varchar [not null]
+  email varchar [not null, unique]
+  telefono varchar [null]
+  activo boolean [not null, default: true]
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table pedido {
+  id bigint [pk, increment]
+  cliente_id bigint [not null]
+  fecha timestamptz [not null, default: `now()`]
+  forma_pago enum [not null]
+}
+
+Table linea_pedido {
+  pedido_id bigint [pk]
+  producto_id bigint [pk]
+  cantidad integer [not null]
+  precio_unitario numeric [not null]
+}
+
+Ref: producto.categoria_id > categoria.id
+Ref: pedido.cliente_id > cliente.id
+Ref: linea_pedido.pedido_id > pedido.id
+Ref: linea_pedido.producto_id > producto.id

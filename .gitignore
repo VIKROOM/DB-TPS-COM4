@@ -1,0 +1,11 @@
+# Respaldo de la base (regenerable vía pg_dump, no se versiona)
+backups/
+
+# Material de referencia de la cátedra (descargado, no es parte de la entrega)
+documento-practica.pdf
+Semana2_Contenidos_Concurrencia.pdf
+Semana2_Diapositivas.pdf
+Unidad1_Contenidos_Fundamentales.pdf
+Unidad1_Formas_Normales.pdf
+Unidad1_Modelo_Relacional.pdf
+TP2_Laboratorio_Concurrencia_IA.pdf
