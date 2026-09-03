@@ -1,0 +1,15 @@
+>>> SESION B inicia con 1.5s de retardo
+ pg_sleep 
+----------
+ 
+(1 fila)
+
+BEGIN
+UPDATE 1
+COMMIT
+>>> SESION B confirmo: precio del producto 2 ahora es 850.00;
+ id |  nombre   | precio 
+----+-----------+--------
+  2 | Coca 1.5L | 850.00
+(1 fila)
+

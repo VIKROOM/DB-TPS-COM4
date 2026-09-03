@@ -1,0 +1,27 @@
+ inicio_intento 
+----------------
+ 18:05:25
+(1 fila)
+
+  inicio  
+----------
+ 18:05:25
+(1 fila)
+
+>>> B pide FOR UPDATE sobre la fila 1 (debe esperar a que A haga COMMIT):
+  antes   
+----------
+ 18:05:25
+(1 fila)
+
+ id |   nombre   | stock 
+----+------------+-------
+  1 | Muzzarella |    20
+(1 fila)
+
+ despues  
+----------
+ 18:05:28
+(1 fila)
+
+>>> B obtuvo el bloqueo SOLO despues del COMMIT de A (espera comprobada);

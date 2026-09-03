@@ -1,0 +1,14 @@
+BEGIN
+>>> A bloquea fila producto 1 con FOR UPDATE y se queda 5s:
+ id |   nombre   | stock 
+----+------------+-------
+  1 | Muzzarella |    20
+(1 fila)
+
+ pg_sleep 
+----------
+ 
+(1 fila)
+
+COMMIT
+>>> A hizo COMMIT: libero el bloqueo de la fila 1;

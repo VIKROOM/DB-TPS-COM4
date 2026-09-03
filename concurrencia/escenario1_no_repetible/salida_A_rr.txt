@@ -1,0 +1,27 @@
+BEGIN
+SET
+           quien            |            momento            
+----------------------------+-------------------------------
+ SESION A (REPEATABLE READ) | 2026-09-03 18:04:16.073316-03
+(1 fila)
+
+>>> Lectura 1 (inicio de transaccion):
+ id |  nombre   | precio 
+----+-----------+--------
+  2 | Coca 1.5L | 800.00
+(1 fila)
+
+>>> A espera 5 segundos mientras B actualiza y confirma...
+ pg_sleep 
+----------
+ 
+(1 fila)
+
+>>> Lectura 2 (misma transaccion, despues del COMMIT de B):
+ id |  nombre   | precio 
+----+-----------+--------
+  2 | Coca 1.5L | 800.00
+(1 fila)
+
+COMMIT
+>>> FIN SESION A (RR);

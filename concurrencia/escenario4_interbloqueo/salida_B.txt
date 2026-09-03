@@ -1,0 +1,21 @@
+>>> SESION B espera 1s y arranca:
+ pg_sleep 
+----------
+ 
+(1 fila)
+
+BEGIN
+>>> B bloquea producto 2:
+ id 
+----
+  2
+(1 fila)
+
+UPDATE 1
+>>> B aviso a A; ahora intenta bloquear producto 1 (A lo tiene):
+ id 
+----
+  1
+(1 fila)
+
+COMMIT

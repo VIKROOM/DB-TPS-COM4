@@ -1,0 +1,11 @@
+BEGIN
+>>> A bloquea producto 1:
+ id 
+----
+  1
+(1 fila)
+
+>>> A espera (hasta 20s) que B bloquee producto 2:
+DO
+>>> A (ya con fila 1) intenta fila 2 que B tiene -> forma ciclo:
+ROLLBACK

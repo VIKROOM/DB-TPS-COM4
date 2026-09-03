@@ -1,0 +1,12 @@
+ pg_sleep 
+----------
+ 
+(1 fila)
+
+>>> SESION B inserta una pizza nueva en categoria 1:
+INSERT 0 1
+                    ok                    
+------------------------------------------
+ SESION B confirmo insercion de Fugazzeta
+(1 fila)
+
