@@ -9,3 +9,8 @@ BEGIN
 DO
 >>> A (ya con fila 1) intenta fila 2 que B tiene -> forma ciclo:
 ROLLBACK
+psql:C:/UTN/3er semestre/Bases de Datos II/UNIDAD 1/concurrencia/escenario4_interbloqueo/sA.sql:21: ERROR:  se ha detectado un deadlock
+DETALLE:  El proceso 18788 espera ShareLock en transacción 807; bloqueado por proceso 9536.
+El proceso 9536 espera ShareLock en transacción 806; bloqueado por proceso 18788.
+SUGERENCIA:  Vea el registro del servidor para obtener detalles de las consultas.
+CONTEXTO:  mientras se bloqueaba la tupla (0,15) de la relación «producto»

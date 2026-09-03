@@ -122,20 +122,20 @@ Dos sesiones tomando filas en **orden cruzado** sobre `producto`, con sincroniza
 ### Qué se observó (salida real del motor)
 ```
 SESION A (victima):
-  ERROR:  se ha detectado un deadlock
-  DETALLE:  El proceso 3152 espera ShareLock en transaccion 801; bloqueado por proceso 18268.
-  El proceso 18268 espera ShareLock en transaccion 800; bloqueado por proceso 3152.
-  CONTEXTO:  mientras se bloqueaba la tupla (0,12) de la relacion "producto"
-  ROLLBACK (la transaccion de A se aborta con el error)
+  psql:...sA.sql:21: ERROR:  se ha detectado un deadlock
+  DETALLE:  El proceso 18788 espera ShareLock en transaccion 807; bloqueado por proceso 9536.
+  El proceso 9536 espera ShareLock en transaccion 806; bloqueado por proceso 18788.
+  CONTEXTO:  mientras se bloqueaba la tupla (0,15) de la relacion "producto"
+  ROLLBACK (la transaccion de A se aborta con el error 40P01)
 SESION B:
-  (completo su COMMIT sin error)
+  (completo su COMMIT sin error, su transaccion sobrevive al deadlock)
 ```
 
 ### Explicación de la IA
 > "Un **interbloqueo** ocurre cuando dos transacciones se bloquean mutuamente: A tiene la fila 1 y pide la 2 mientras B tiene la 2 y pide la 1. Ninguna puede avanzar sola, así que se forma un **ciclo en el grafo de espera**. PostgreSQL detecta el ciclo (cada 1 s por defecto, `deadlock_timeout`) y **aborta a una de las dos** como víctima con el error SQLSTATE `40P01`, liberando sus bloqueos para que la otra continúe. La prevención estándar es acceder siempre a los recursos en el **mismo orden** y mantener transacciones cortas."
 
 ### Verificación en el motor
-PostgreSQL abortó a la Sesión A con el error `40P01` ("se ha detectado un deadlock"), mostrando en el DETALLE el ciclo exacto (3152 espera a 18268, y 18268 espera a 3152). La Sesión B continuó y confirmó.
+PostgreSQL abortó a la Sesión A con el error `40P01` ("se ha detectado un deadlock"), mostrando en el DETALLE el ciclo exacto (el proceso 18788 espera a 9536, y este a su vez espera a 18788). La Sesión B continuó y confirmó.
 
 ### Conclusión
 La IA **acertó**. El ciclo se formó con el orden cruzado de acceso y el motor lo resolvió abortando a una víctima (A). La solución de diseño es acceder a los recursos en un **orden consistente** (evitar el cruce) y mantener transacciones cortas.
