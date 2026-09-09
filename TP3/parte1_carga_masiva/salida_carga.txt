@@ -1,0 +1,21 @@
+El despliegue de duración está activado.
+BEGIN
+Duración: 0,185 ms
+INSERT 0 50000
+Duración: 512,436 ms
+INSERT 0 20000
+Duración: 235,467 ms
+INSERT 0 200000
+Duración: 1861,574 ms (00:01,862)
+INSERT 0 622415
+Duración: 10035,411 ms (00:10,035)
+COMMIT
+Duración: 1,354 ms
+ANALYZE
+Duración: 219,477 ms
+ANALYZE
+Duración: 324,278 ms
+ANALYZE
+Duración: 44,345 ms
+ANALYZE
+Duración: 56,982 ms

@@ -1,0 +1,21 @@
+-- TP3 Parte 2 · C1 con variante INCLUDE (nombre, stock) · segunda corrida
+
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=2590.87..2611.74 rows=8347 width=32) (actual time=6.605..7.046 rows=8335 loops=1)
+   Sort Key: precio
+   Sort Method: quicksort  Memory: 838kB
+   Buffers: shared hit=904
+   ->  Bitmap Heap Scan on producto p  (cost=217.85..2047.18 rows=8347 width=32) (actual time=0.598..4.593 rows=8335 loops=1)
+         Recheck Cond: ((categoria_id = 2) AND (NOT eliminado))
+         Heap Blocks: exact=864
+         Buffers: shared hit=901
+         ->  Bitmap Index Scan on idx_producto_cat_elim_precio  (cost=0.00..215.76 rows=8347 width=0) (actual time=0.520..0.521 rows=8335 loops=1)
+               Index Cond: ((categoria_id = 2) AND (eliminado = false))
+               Buffers: shared hit=37
+ Planning:
+   Buffers: shared hit=156
+ Planning Time: 2.465 ms
+ Execution Time: 7.429 ms
+(15 filas)
+

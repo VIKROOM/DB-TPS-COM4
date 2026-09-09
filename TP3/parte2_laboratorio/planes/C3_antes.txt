@@ -1,0 +1,24 @@
+-- TP3 Parte 2 · Consulta C3 · Plan antes · foodstore_tp3 · PostgreSQL 17.10
+-- Protocolo: EXPLAIN (ANALYZE, BUFFERS), segunda corrida (caché caliente)
+-- SQL: SELECT d.producto_id, SUM(d.cantidad) AS unidades_vendidas FROM detalle_pedido d GROUP BY d.producto_id ORDER BY unidades_vendidas DESC LIMIT 10;
+
+                                                                 QUERY PLAN                                                                 
+--------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=16144.20..16144.23 rows=10 width=16) (actual time=149.733..149.736 rows=10 loops=1)
+   Buffers: shared hit=4749 read=2406
+   ->  Sort  (cost=16144.20..16261.79 rows=47034 width=16) (actual time=149.731..149.732 rows=10 loops=1)
+         Sort Key: (sum(cantidad)) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=4749 read=2406
+         ->  HashAggregate  (cost=14657.48..15127.82 rows=47034 width=16) (actual time=139.071..146.372 rows=49998 loops=1)
+               Group Key: producto_id
+               Batches: 1  Memory Usage: 4881kB
+               Buffers: shared hit=4746 read=2406
+               ->  Seq Scan on detalle_pedido d  (cost=0.00..12155.65 rows=500365 width=12) (actual time=8.517..37.527 rows=500365 loops=1)
+                     Buffers: shared hit=4746 read=2406
+ Planning:
+   Buffers: shared hit=79
+ Planning Time: 1.598 ms
+ Execution Time: 150.645 ms
+(16 filas)
+

@@ -1,0 +1,21 @@
+El despliegue de duraci¾n estß activado.
+BEGIN
+Duraci¾n: 0,166 ms
+UPDATE 50000
+Duraci¾n: 936,592 ms
+UPDATE 200001
+Duraci¾n: 3583,425 ms (00:03,583)
+DELETE 622417
+Duraci¾n: 1494,203 ms (00:01,494)
+INSERT 0 500365
+Duraci¾n: 12209,726 ms (00:12,210)
+COMMIT
+Duraci¾n: 145,571 ms
+ANALYZE
+Duraci¾n: 204,905 ms
+ANALYZE
+Duraci¾n: 331,248 ms
+ANALYZE
+Duraci¾n: 67,717 ms
+ANALYZE
+Duraci¾n: 95,493 ms

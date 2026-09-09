@@ -1,0 +1,142 @@
+=== SPEC A: filas en (IA) que no est├ín en (propia) ÔÇö debe dar 0 filas ===
+ nombre_categoria | cantidad_productos 
+------------------+--------------------
+(0 filas)
+
+=== SPEC A: filas en (propia) que no est├ín en (IA) ÔÇö debe dar 0 filas ===
+ nombre | count 
+--------+-------
+(0 filas)
+
+=== SPEC A: conteo de filas de cada versi├│n ÔÇö deben coincidir ===
+ filas_version_ia | filas_version_propia 
+------------------+----------------------
+                6 |                    6
+(1 fila)
+
+=== SPEC A: resultado de ambas versiones (muestra para comparar a ojo) ===
+ version | nombre_categoria | cantidad_productos 
+---------+------------------+--------------------
+ IA      | Hamburguesas     |               8335
+ IA      | Pizzas           |               8335
+ IA      | Bebidas          |               8334
+ IA      | Ensaladas        |               8333
+ IA      | Postres          |               8333
+ IA      | S├índwiches       |               8333
+(6 filas)
+
+ version | nombre_categoria | cantidad_productos 
+---------+------------------+--------------------
+ propia  | Hamburguesas     |               8335
+ propia  | Pizzas           |               8335
+ propia  | Bebidas          |               8334
+ propia  | Ensaladas        |               8333
+ propia  | Postres          |               8333
+ propia  | S├índwiches       |               8333
+(6 filas)
+
+=== SPEC B: (IA) EXCEPT (propia) ÔÇö debe dar 0 filas ===
+ nombre | apellido | mail 
+--------+----------+------
+(0 filas)
+
+=== SPEC B: (propia) EXCEPT (IA) ÔÇö debe dar 0 filas ===
+ nombre | apellido | mail 
+--------+----------+------
+(0 filas)
+
+=== SPEC B: conteo SIN el LIMIT (universo completo) ÔÇö deben coincidir ===
+ usuarios_ia | usuarios_propia 
+-------------+-----------------
+       18879 |           18879
+(1 fila)
+
+=== SPEC B: primeras 25 filas seg├║n cada versi├│n (muestra) ===
+ version |    nombre    |   apellido    |         mail          
+---------+--------------+---------------+-----------------------
+ IA      | Usuario1     | Apellido1     | usuario1@test.com
+ IA      | Usuario10    | Apellido10    | usuario10@test.com
+ IA      | Usuario100   | Apellido100   | usuario100@test.com
+ IA      | Usuario1000  | Apellido1000  | usuario1000@test.com
+ IA      | Usuario10000 | Apellido10000 | usuario10000@test.com
+ IA      | Usuario10001 | Apellido10001 | usuario10001@test.com
+ IA      | Usuario10002 | Apellido10002 | usuario10002@test.com
+ IA      | Usuario10003 | Apellido10003 | usuario10003@test.com
+ IA      | Usuario10004 | Apellido10004 | usuario10004@test.com
+ IA      | Usuario10005 | Apellido10005 | usuario10005@test.com
+ IA      | Usuario10006 | Apellido10006 | usuario10006@test.com
+ IA      | Usuario10007 | Apellido10007 | usuario10007@test.com
+ IA      | Usuario10008 | Apellido10008 | usuario10008@test.com
+ IA      | Usuario10009 | Apellido10009 | usuario10009@test.com
+ IA      | Usuario1001  | Apellido1001  | usuario1001@test.com
+ IA      | Usuario10010 | Apellido10010 | usuario10010@test.com
+ IA      | Usuario10011 | Apellido10011 | usuario10011@test.com
+ IA      | Usuario10012 | Apellido10012 | usuario10012@test.com
+ IA      | Usuario10013 | Apellido10013 | usuario10013@test.com
+ IA      | Usuario10014 | Apellido10014 | usuario10014@test.com
+ IA      | Usuario10015 | Apellido10015 | usuario10015@test.com
+ IA      | Usuario10016 | Apellido10016 | usuario10016@test.com
+ IA      | Usuario10017 | Apellido10017 | usuario10017@test.com
+ IA      | Usuario10018 | Apellido10018 | usuario10018@test.com
+ IA      | Usuario10019 | Apellido10019 | usuario10019@test.com
+(25 filas)
+
+ version |    nombre    |   apellido    |         mail          
+---------+--------------+---------------+-----------------------
+ propia  | Usuario1     | Apellido1     | usuario1@test.com
+ propia  | Usuario10    | Apellido10    | usuario10@test.com
+ propia  | Usuario100   | Apellido100   | usuario100@test.com
+ propia  | Usuario1000  | Apellido1000  | usuario1000@test.com
+ propia  | Usuario10000 | Apellido10000 | usuario10000@test.com
+ propia  | Usuario10001 | Apellido10001 | usuario10001@test.com
+ propia  | Usuario10002 | Apellido10002 | usuario10002@test.com
+ propia  | Usuario10003 | Apellido10003 | usuario10003@test.com
+ propia  | Usuario10004 | Apellido10004 | usuario10004@test.com
+ propia  | Usuario10005 | Apellido10005 | usuario10005@test.com
+ propia  | Usuario10006 | Apellido10006 | usuario10006@test.com
+ propia  | Usuario10007 | Apellido10007 | usuario10007@test.com
+ propia  | Usuario10008 | Apellido10008 | usuario10008@test.com
+ propia  | Usuario10009 | Apellido10009 | usuario10009@test.com
+ propia  | Usuario1001  | Apellido1001  | usuario1001@test.com
+ propia  | Usuario10010 | Apellido10010 | usuario10010@test.com
+ propia  | Usuario10011 | Apellido10011 | usuario10011@test.com
+ propia  | Usuario10012 | Apellido10012 | usuario10012@test.com
+ propia  | Usuario10013 | Apellido10013 | usuario10013@test.com
+ propia  | Usuario10014 | Apellido10014 | usuario10014@test.com
+ propia  | Usuario10015 | Apellido10015 | usuario10015@test.com
+ propia  | Usuario10016 | Apellido10016 | usuario10016@test.com
+ propia  | Usuario10017 | Apellido10017 | usuario10017@test.com
+ propia  | Usuario10018 | Apellido10018 | usuario10018@test.com
+ propia  | Usuario10019 | Apellido10019 | usuario10019@test.com
+(25 filas)
+
+BEGIN
+UPDATE 1
+UPDATE 8333
+=== CASO BORDE: (IA) EXCEPT (propia) ÔÇö debe dar 0 filas ===
+ nombre | count 
+--------+-------
+(0 filas)
+
+=== CASO BORDE: (propia) EXCEPT (IA) ÔÇö debe dar 0 filas ===
+ nombre | count 
+--------+-------
+(0 filas)
+
+=== CASO BORDE: resultado version propia (Postres no est├í; Ensaladas = 0) ===
+    nombre    | cantidad_productos 
+--------------+--------------------
+ Hamburguesas |               8335
+ Pizzas       |               8335
+ Bebidas      |               8334
+ S├índwiches   |               8333
+ Ensaladas    |                  0
+(5 filas)
+
+ROLLBACK
+=== ROLLBACK ejecutado: la base queda intacta (verificaci├│n) ===
+ categorias_eliminadas 
+-----------------------
+                     0
+(1 fila)
+

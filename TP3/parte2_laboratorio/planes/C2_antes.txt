@@ -1,0 +1,26 @@
+-- TP3 Parte 2 · Consulta C2 · Plan antes · foodstore_tp3 · PostgreSQL 17.10
+-- Protocolo: EXPLAIN (ANALYZE, BUFFERS), segunda corrida (caché caliente)
+-- SQL: SELECT pe.id, pe.fecha, pe.estado, pe.forma_pago FROM pedido pe WHERE pe.usuario_id = 1000 AND pe.eliminado = FALSE ORDER BY pe.fecha DESC;
+
+                                                         QUERY PLAN                                                         
+----------------------------------------------------------------------------------------------------------------------------
+ Gather Merge  (cost=5780.74..5781.67 rows=8 width=20) (actual time=33.131..36.821 rows=10 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=3813
+   ->  Sort  (cost=4780.71..4780.72 rows=4 width=20) (actual time=8.101..8.102 rows=3 loops=3)
+         Sort Key: fecha DESC
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=3813
+         Worker 0:  Sort Method: quicksort  Memory: 25kB
+         Worker 1:  Sort Method: quicksort  Memory: 25kB
+         ->  Parallel Seq Scan on pedido pe  (cost=0.00..4780.67 rows=4 width=20) (actual time=1.327..8.039 rows=3 loops=3)
+               Filter: ((NOT eliminado) AND (usuario_id = 1000))
+               Rows Removed by Filter: 66664
+               Buffers: shared hit=3739
+ Planning:
+   Buffers: shared hit=95
+ Planning Time: 1.545 ms
+ Execution Time: 36.934 ms
+(18 filas)
+

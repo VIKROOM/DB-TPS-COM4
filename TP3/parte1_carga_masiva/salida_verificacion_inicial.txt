@@ -1,0 +1,84 @@
+El despliegue de duraci¾n estß activado.
+     tabla      | filas  
+----------------+--------
+ categoria      |      6
+ detalle_pedido | 622417
+ pedido         | 200001
+ producto       |  50003
+ usuario        |  20003
+(5 filas)
+
+Duraci¾n: 52,933 ms
+ id |    nombre    | productos 
+----+--------------+-----------
+  1 | Hamburguesas |         1
+  2 | Pizzas       |     50001
+  3 | Bebidas      |         1
+  4 | Postres      |         0
+  5 | Ensaladas    |         0
+  6 | S├índwiches   |         0
+(6 filas)
+
+Duraci¾n: 15,703 ms
+ fuera_de_rango 
+----------------
+              0
+(1 fila)
+
+Duraci¾n: 9,264 ms
+ productos_sin_categoria | pedidos_sin_usuario | detalles_sin_pedido | detalles_sin_producto 
+-------------------------+---------------------+---------------------+-----------------------
+                       0 |                   0 |                   0 |                     0
+(1 fila)
+
+Duraci¾n: 168,697 ms
+ total_usuarios | mails_distintos | duplicados 
+----------------+-----------------+------------
+          20003 |           20003 |          0
+(1 fila)
+
+Duraci¾n: 3,508 ms
+ detalles_cantidad_invalida 
+----------------------------
+                          0
+(1 fila)
+
+Duraci¾n: 39,769 ms
+ min_lineas_por_pedido | max_lineas_por_pedido | promedio_lineas 
+-----------------------+-----------------------+-----------------
+                     1 |                     4 |            3.11
+(1 fila)
+
+Duraci¾n: 92,233 ms
+   estado   |  forma_pago   | count 
+------------+---------------+-------
+ PENDIENTE  | EFECTIVO      | 16824
+ PENDIENTE  | TARJETA       | 17015
+ PENDIENTE  | TRANSFERENCIA | 16673
+ CONFIRMADO | EFECTIVO      | 16659
+ CONFIRMADO | TARJETA       | 16695
+ CONFIRMADO | TRANSFERENCIA | 16663
+ TERMINADO  | EFECTIVO      | 16496
+ TERMINADO  | TARJETA       | 16616
+ TERMINADO  | TRANSFERENCIA | 16625
+ CANCELADO  | EFECTIVO      | 16537
+ CANCELADO  | TARJETA       | 16740
+ CANCELADO  | TRANSFERENCIA | 16458
+(12 filas)
+
+Duraci¾n: 34,510 ms
+ fecha_min  | fecha_max  
+------------+------------
+ 2025-09-08 | 2026-09-08
+(1 fila)
+
+Duraci¾n: 36,418 ms
+    relname     |         last_analyze          | last_autoanalyze 
+----------------+-------------------------------+------------------
+ detalle_pedido | 2026-09-08 21:08:43.844416-03 | 
+ pedido         | 2026-09-08 21:08:43.78457-03  | 
+ producto       | 2026-09-08 21:08:43.393557-03 | 
+ usuario        | 2026-09-08 21:08:43.727652-03 | 
+(4 filas)
+
+Duraci¾n: 6,140 ms

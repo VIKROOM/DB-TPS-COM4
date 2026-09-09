@@ -1,0 +1,23 @@
+-- TP3 Parte 2 · Consulta C1 · Plan despues · foodstore_tp3 · PostgreSQL 17.10
+-- Protocolo: EXPLAIN (ANALYZE, BUFFERS), segunda corrida (caché caliente)
+-- SQL: SELECT p.id, p.nombre, p.precio, p.stock FROM producto p WHERE p.categoria_id = 2 AND p.eliminado = FALSE ORDER BY p.precio;
+
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=2592.20..2613.10 rows=8361 width=32) (actual time=6.751..7.325 rows=8335 loops=1)
+   Sort Key: precio
+   Sort Method: quicksort  Memory: 838kB
+   Buffers: shared hit=904
+   ->  Bitmap Heap Scan on producto p  (cost=217.99..2047.50 rows=8361 width=32) (actual time=0.555..4.676 rows=8335 loops=1)
+         Recheck Cond: ((categoria_id = 2) AND (NOT eliminado))
+         Heap Blocks: exact=864
+         Buffers: shared hit=901
+         ->  Bitmap Index Scan on idx_producto_cat_elim_precio  (cost=0.00..215.90 rows=8361 width=0) (actual time=0.480..0.480 rows=8335 loops=1)
+               Index Cond: ((categoria_id = 2) AND (eliminado = false))
+               Buffers: shared hit=37
+ Planning:
+   Buffers: shared hit=132
+ Planning Time: 1.761 ms
+ Execution Time: 7.726 ms
+(15 filas)
+

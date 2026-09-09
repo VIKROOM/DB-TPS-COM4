@@ -1,0 +1,22 @@
+-- TP3 Parte 5 · Consulta común de la competencia · Plan despues · foodstore_tp3 · PostgreSQL 17.10
+-- Protocolo: EXPLAIN (ANALYZE, BUFFERS), segunda corrida (caché caliente)
+
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=2127.74..2137.04 rows=3720 width=32) (actual time=4.605..4.754 rows=3737 loops=1)
+   Sort Key: precio DESC
+   Sort Method: quicksort  Memory: 300kB
+   Buffers: shared hit=882
+   ->  Bitmap Heap Scan on producto p  (cost=117.02..1907.12 rows=3720 width=32) (actual time=0.358..3.672 rows=3737 loops=1)
+         Recheck Cond: ((categoria_id = 2) AND (NOT eliminado) AND (precio >= '1000'::numeric) AND (precio <= '3000'::numeric))
+         Heap Blocks: exact=860
+         Buffers: shared hit=879
+         ->  Bitmap Index Scan on idx_producto_cat_elim_precio  (cost=0.00..116.09 rows=3720 width=0) (actual time=0.283..0.284 rows=3737 loops=1)
+               Index Cond: ((categoria_id = 2) AND (eliminado = false) AND (precio >= '1000'::numeric) AND (precio <= '3000'::numeric))
+               Buffers: shared hit=19
+ Planning:
+   Buffers: shared hit=139
+ Planning Time: 2.319 ms
+ Execution Time: 4.941 ms
+(15 filas)
+

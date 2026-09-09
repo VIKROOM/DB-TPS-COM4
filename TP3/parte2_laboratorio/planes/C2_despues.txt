@@ -1,0 +1,15 @@
+-- TP3 Parte 2 · Consulta C2 · Plan despues · foodstore_tp3 · PostgreSQL 17.10
+-- Protocolo: EXPLAIN (ANALYZE, BUFFERS), segunda corrida (caché caliente)
+-- SQL: SELECT pe.id, pe.fecha, pe.estado, pe.forma_pago FROM pedido pe WHERE pe.usuario_id = 1000 AND pe.eliminado = FALSE ORDER BY pe.fecha DESC;
+
+                                                                    QUERY PLAN                                                                    
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan Backward using idx_pedido_usu_elim_fecha on pedido pe  (cost=0.42..24.37 rows=10 width=20) (actual time=0.038..0.041 rows=10 loops=1)
+   Index Cond: ((usuario_id = 1000) AND (eliminado = false))
+   Buffers: shared hit=8
+ Planning:
+   Buffers: shared hit=133
+ Planning Time: 1.846 ms
+ Execution Time: 0.164 ms
+(7 filas)
+
