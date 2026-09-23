@@ -84,8 +84,26 @@ lectura justifica el costo de mantenimiento.
 
 ## Parte B — Vistas (verificación de equivalencia)
 
-> Se documenta en `bitácora-equivalencia.md` (o en `duia.md`) — ver sección
-> correspondiente una vez generadas las vistas.
+Tres vistas en `views.sql`, generadas por OpenCode desde los specs en `specs/`:
+
+| Vista | Reporte | Verificación EXCEPT (vista↔manual) |
+|-------|---------|-------------------------------------|
+| `v_productos_vigentes` | productos vigentes con su categoría (menú) | 0 y 0 filas de diferencia |
+| `v_pedidos_cliente` | pedidos con datos del cliente | 0 y 0 filas de diferencia |
+| `v_detalle_pedido_producto` | detalle de pedido con nombre de producto | 0 y 0 filas de diferencia |
+
+Cada vista se verificó en **ambas direcciones** del `EXCEPT` (filas de la vista
+que no están en la consulta manual, y viceversa); todas dieron **0 filas**
+(script `06_verificacion_vistas.sql`).
+
+**Criterio de seguridad aplicado (vista `v_pedidos_cliente`):** el enunciado
+pide ocultar la columna `contraseña` del usuario. El esquema real del equipo
+modela al comprador como `cliente` (sin credenciales). La vista oculta las
+columnas de contacto protegidas del esquema real —`email` y `telefono`— y se
+verificó que la vista **no las expone** (0 columnas sensibles). Con `SELECT`
+sobre la vista se puede dar acceso a los pedidos sin abrir la tabla base
+`cliente`. La equivalencia se hace sobre el subconjunto de columnas expuestas,
+que es exactamente lo que la vista garantiza.
 
 ## Parte C — Vista materializada (medición)
 
