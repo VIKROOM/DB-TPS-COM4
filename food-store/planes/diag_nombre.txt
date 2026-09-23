@@ -1,0 +1,20 @@
+﻿El despliegue de duraci¾n estß activado.
+                                               QUERY PLAN                                               
+--------------------------------------------------------------------------------------------------------
+ Seq Scan on producto  (cost=0.00..1292.03 rows=5 width=25) (actual time=31.564..31.565 rows=0 loops=1)
+   Filter: (activo AND ((nombre)::text ~~* '%pizza 25000%'::text))
+   Rows Removed by Filter: 50002
+   Buffers: shared hit=667
+ Planning:
+   Buffers: shared hit=101
+ Planning Time: 2.152 ms
+ Execution Time: 31.643 ms
+(8 filas)
+
+Duraci¾n: 34,696 ms
+  name   
+---------
+ pg_trgm
+(1 fila)
+
+Duraci¾n: 561,944 ms

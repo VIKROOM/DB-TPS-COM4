@@ -1,0 +1,11 @@
+﻿El despliegue de duraci¾n estß activado.
+BEGIN
+Duraci¾n: 0,231 ms
+INSERT 0 1000
+Duraci¾n: 19,909 ms
+INSERT 0 1000
+Duraci¾n: 24,240 ms
+INSERT 0 3000
+Duraci¾n: 63,450 ms
+ROLLBACK
+Duraci¾n: 0,129 ms

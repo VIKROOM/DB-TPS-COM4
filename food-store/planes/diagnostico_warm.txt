@@ -1,0 +1,66 @@
+﻿El despliegue de duraci¾n estß activado.
+                                                                  QUERY PLAN                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=6925.47..6926.05 rows=5 width=57) (actual time=33.213..36.545 rows=8 loops=1)
+   Buffers: shared hit=2982
+   ->  Gather Merge  (cost=6925.47..6926.05 rows=5 width=57) (actual time=33.211..36.541 rows=8 loops=1)
+         Workers Planned: 1
+         Workers Launched: 1
+         Buffers: shared hit=2982
+         ->  Sort  (cost=5925.46..5925.47 rows=5 width=57) (actual time=13.216..13.218 rows=4 loops=2)
+               Sort Key: p.fecha DESC
+               Sort Method: quicksort  Memory: 25kB
+               Buffers: shared hit=2982
+               Worker 0:  Sort Method: quicksort  Memory: 25kB
+               ->  Nested Loop  (cost=0.42..5925.40 rows=5 width=57) (actual time=1.027..13.159 rows=4 loops=2)
+                     Buffers: shared hit=2974
+                     ->  Parallel Seq Scan on linea_pedido lp  (cost=0.00..5883.19 rows=5 width=17) (actual time=1.008..13.012 rows=4 loops=2)
+                           Filter: (producto_id = 100)
+                           Rows Removed by Filter: 199997
+                           Buffers: shared hit=2942
+                     ->  Index Scan using pedido_pkey on pedido p  (cost=0.42..8.44 rows=1 width=16) (actual time=0.025..0.025 rows=1 loops=8)
+                           Index Cond: (id = lp.pedido_id)
+                           Buffers: shared hit=32
+ Planning:
+   Buffers: shared hit=247
+ Planning Time: 3.189 ms
+ Execution Time: 36.616 ms
+
+Duraci¾n: 41,220 ms
+                                                    QUERY PLAN                                                    
+------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=1431.02..1437.19 rows=2467 width=24) (actual time=6.744..6.895 rows=2771 loops=1)
+   Sort Key: stock
+   Sort Method: quicksort  Memory: 213kB
+   Buffers: shared hit=670
+   ->  Seq Scan on producto  (cost=0.00..1292.03 rows=2467 width=24) (actual time=0.013..6.225 rows=2771 loops=1)
+         Filter: (activo AND (stock <= 10))
+         Rows Removed by Filter: 47231
+         Buffers: shared hit=667
+ Planning:
+   Buffers: shared hit=74
+ Planning Time: 1.827 ms
+ Execution Time: 7.022 ms
+
+Duraci¾n: 9,352 ms
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=42.26..42.27 rows=4 width=20) (actual time=0.112..0.112 rows=4 loops=1)
+   Sort Key: fecha DESC
+   Sort Method: quicksort  Memory: 25kB
+   Buffers: shared hit=15
+   ->  Bitmap Heap Scan on pedido  (cost=4.37..42.22 rows=4 width=20) (actual time=0.068..0.105 rows=4 loops=1)
+         Recheck Cond: (cliente_id = 1000)
+         Filter: ((fecha >= '2025-01-01 00:00:00-03'::timestamp with time zone) AND (fecha <= '2025-06-01 00:00:00-03'::timestamp with time zone))
+         Rows Removed by Filter: 6
+         Heap Blocks: exact=10
+         Buffers: shared hit=15
+         ->  Bitmap Index Scan on idx_pedido_cliente  (cost=0.00..4.37 rows=10 width=0) (actual time=0.042..0.042 rows=10 loops=1)
+               Index Cond: (cliente_id = 1000)
+               Buffers: shared hit=5
+ Planning:
+   Buffers: shared hit=21
+ Planning Time: 0.202 ms
+ Execution Time: 0.129 ms
+
+Duraci¾n: 0,702 ms

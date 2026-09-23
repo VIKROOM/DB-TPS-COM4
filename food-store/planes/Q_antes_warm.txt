@@ -1,0 +1,192 @@
+﻿El despliegue de duraci¾n estß activado.
+                                                                                   QUERY PLAN                                                                                    
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=20732.30..20782.30 rows=20001 width=67) (actual time=343.069..346.211 rows=20001 loops=1)
+   Sort Key: (rank() OVER (?)), c.id
+   Sort Method: quicksort  Memory: 2019kB
+   Buffers: shared hit=5072, temp read=281 written=673
+   ->  WindowAgg  (cost=18953.45..19303.45 rows=20001 width=67) (actual time=332.220..342.522 rows=20001 loops=1)
+         Buffers: shared hit=5069, temp read=281 written=673
+         ->  Sort  (cost=18953.43..19003.43 rows=20001 width=59) (actual time=332.204..336.310 rows=20001 loops=1)
+               Sort Key: (sum(((lp.cantidad)::numeric * lp.precio_unitario))) DESC
+               Sort Method: quicksort  Memory: 1862kB
+               Buffers: shared hit=5069, temp read=281 written=673
+               ->  Finalize HashAggregate  (cost=17274.57..17524.58 rows=20001 width=59) (actual time=318.558..329.650 rows=20001 loops=1)
+                     Group Key: c.id
+                     Batches: 5  Memory Usage: 8753kB  Disk Usage: 696kB
+                     Buffers: shared hit=5066, temp read=281 written=673
+                     ->  Gather  (cost=14874.45..17124.56 rows=20001 width=59) (actual time=271.975..299.770 rows=40002 loops=1)
+                           Workers Planned: 1
+                           Workers Launched: 1
+                           Buffers: shared hit=5066, temp read=221 written=548
+                           ->  Partial HashAggregate  (cost=13874.45..14124.46 rows=20001 width=59) (actual time=255.036..268.834 rows=20001 loops=2)
+                                 Group Key: c.id
+                                 Batches: 5  Memory Usage: 8241kB  Disk Usage: 1544kB
+                                 Buffers: shared hit=5066, temp read=221 written=548
+                                 Worker 0:  Batches: 5  Memory Usage: 8241kB  Disk Usage: 1568kB
+                                 ->  Hash Join  (cost=4991.10..11521.50 rows=235295 width=36) (actual time=36.238..169.530 rows=200001 loops=2)
+                                       Hash Cond: (p.cliente_id = c.id)
+                                       Buffers: shared hit=5066
+                                       ->  Parallel Hash Join  (cost=4314.08..10226.69 rows=235295 width=17) (actual time=31.008..114.471 rows=200001 loops=2)
+                                             Hash Cond: (lp.pedido_id = p.id)
+                                             Buffers: shared hit=4609
+                                             ->  Parallel Seq Scan on linea_pedido lp  (cost=0.00..5294.95 rows=235295 width=17) (actual time=0.010..12.100 rows=200001 loops=2)
+                                                   Buffers: shared hit=2942
+                                             ->  Parallel Hash  (cost=2843.48..2843.48 rows=117648 width=16) (actual time=30.476..30.477 rows=100000 loops=2)
+                                                   Buckets: 262144  Batches: 1  Memory Usage: 11456kB
+                                                   Buffers: shared hit=1667
+                                                   ->  Parallel Seq Scan on pedido p  (cost=0.00..2843.48 rows=117648 width=16) (actual time=0.011..9.816 rows=100000 loops=2)
+                                                         Buffers: shared hit=1667
+                                       ->  Hash  (cost=427.01..427.01 rows=20001 width=27) (actual time=5.158..5.159 rows=20001 loops=2)
+                                             Buckets: 32768  Batches: 1  Memory Usage: 1436kB
+                                             Buffers: shared hit=454
+                                             ->  Seq Scan on cliente c  (cost=0.00..427.01 rows=20001 width=27) (actual time=0.209..2.788 rows=20001 loops=2)
+                                                   Filter: activo
+                                                   Buffers: shared hit=454
+ Planning:
+   Buffers: shared hit=269
+ Planning Time: 4.588 ms
+ Execution Time: 362.248 ms
+
+Duraci¾n: 369,026 ms
+                                                                          QUERY PLAN                                                                          
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=5129.96..5129.99 rows=10 width=48) (actual time=38.616..38.618 rows=11 loops=1)
+   Sort Key: p.fecha, p.id
+   Sort Method: quicksort  Memory: 25kB
+   Buffers: shared hit=1736
+   InitPlan 1
+     ->  Limit  (cost=4967.64..4967.65 rows=1 width=16) (actual time=38.403..38.404 rows=1 loops=1)
+           Buffers: shared hit=1667
+           ->  Sort  (cost=4967.64..5017.75 rows=20042 width=16) (actual time=38.401..38.401 rows=1 loops=1)
+                 Sort Key: (count(*)) DESC
+                 Sort Method: top-N heapsort  Memory: 25kB
+                 Buffers: shared hit=1667
+                 ->  HashAggregate  (cost=4667.01..4867.43 rows=20042 width=16) (actual time=35.340..37.133 rows=20001 loops=1)
+                       Group Key: pedido.cliente_id
+                       Batches: 1  Memory Usage: 2065kB
+                       Buffers: shared hit=1667
+                       ->  Seq Scan on pedido  (cost=0.00..3667.01 rows=200001 width=8) (actual time=0.009..9.313 rows=200001 loops=1)
+                             Buffers: shared hit=1667
+   ->  GroupAggregate  (cost=161.77..162.15 rows=10 width=48) (actual time=38.590..38.599 rows=11 loops=1)
+         Group Key: p.id
+         Buffers: shared hit=1733
+         ->  Sort  (cost=161.77..161.82 rows=20 width=25) (actual time=38.583..38.585 rows=22 loops=1)
+               Sort Key: p.id
+               Sort Method: quicksort  Memory: 26kB
+               Buffers: shared hit=1733
+               ->  Nested Loop  (cost=4.80..161.34 rows=20 width=25) (actual time=38.468..38.579 rows=22 loops=1)
+                     Buffers: shared hit=1733
+                     ->  Bitmap Heap Scan on pedido p  (cost=4.37..42.17 rows=10 width=16) (actual time=38.452..38.461 rows=11 loops=1)
+                           Recheck Cond: (cliente_id = (InitPlan 1).col1)
+                           Heap Blocks: exact=10
+                           Buffers: shared hit=1679
+                           ->  Bitmap Index Scan on idx_pedido_cliente  (cost=0.00..4.37 rows=10 width=0) (actual time=38.428..38.428 rows=11 loops=1)
+                                 Index Cond: (cliente_id = (InitPlan 1).col1)
+                                 Buffers: shared hit=1669
+                     ->  Index Scan using linea_pedido_pkey on linea_pedido lp  (cost=0.42..11.90 rows=2 width=17) (actual time=0.008..0.010 rows=2 loops=11)
+                           Index Cond: (pedido_id = p.id)
+                           Buffers: shared hit=54
+ Planning:
+   Buffers: shared hit=36
+ Planning Time: 0.331 ms
+ Execution Time: 38.965 ms
+
+Duraci¾n: 40,086 ms
+                                                                                  QUERY PLAN                                                                                  
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=20256.72..20256.72 rows=2 width=69) (actual time=88.609..88.614 rows=2 loops=1)
+   Sort Key: pr.nombre
+   Sort Method: quicksort  Memory: 25kB
+   Buffers: shared hit=2319
+   InitPlan 1
+     ->  Limit  (cost=20219.73..20219.73 rows=1 width=16) (actual time=88.363..88.365 rows=1 loops=1)
+           Buffers: shared hit=2302
+           ->  Sort  (cost=20219.73..20715.60 rows=198351 width=16) (actual time=88.360..88.361 rows=1 loops=1)
+                 Sort Key: (count(*)) DESC
+                 Sort Method: top-N heapsort  Memory: 25kB
+                 Buffers: shared hit=2302
+                 ->  GroupAggregate  (cost=0.42..19227.97 rows=198351 width=16) (actual time=0.018..75.155 rows=200001 loops=1)
+                       Group Key: linea_pedido.pedido_id
+                       Buffers: shared hit=2302
+                       ->  Index Only Scan using linea_pedido_pkey on linea_pedido  (cost=0.42..15244.45 rows=400002 width=8) (actual time=0.015..33.506 rows=400002 loops=1)
+                             Heap Fetches: 0
+                             Buffers: shared hit=2302
+   ->  Nested Loop  (cost=1.13..36.98 rows=2 width=69) (actual time=88.534..88.539 rows=2 loops=1)
+         Buffers: shared hit=2316
+         ->  Index Scan using pedido_pkey on pedido p  (cost=0.42..8.44 rows=1 width=16) (actual time=88.469..88.469 rows=1 loops=1)
+               Index Cond: (id = (InitPlan 1).col1)
+               Buffers: shared hit=2306
+         ->  Nested Loop  (cost=0.71..28.51 rows=2 width=29) (actual time=0.046..0.050 rows=2 loops=1)
+               Buffers: shared hit=10
+               ->  Index Scan using linea_pedido_pkey on linea_pedido lp  (cost=0.42..11.90 rows=2 width=25) (actual time=0.018..0.020 rows=2 loops=1)
+                     Index Cond: (pedido_id = (InitPlan 1).col1)
+                     Buffers: shared hit=4
+               ->  Index Scan using producto_pkey on producto pr  (cost=0.29..8.31 rows=1 width=20) (actual time=0.011..0.011 rows=1 loops=2)
+                     Index Cond: (id = lp.producto_id)
+                     Buffers: shared hit=6
+ Planning:
+   Buffers: shared hit=67
+ Planning Time: 2.254 ms
+ Execution Time: 88.742 ms
+
+Duraci¾n: 91,852 ms
+                                                                  QUERY PLAN                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=3071.99..3134.19 rows=24883 width=29) (actual time=13.062..14.209 rows=25001 loops=1)
+   Sort Key: precio
+   Sort Method: quicksort  Memory: 1940kB
+   Buffers: shared hit=691
+   ->  Bitmap Heap Scan on producto p  (cost=277.13..1255.17 rows=24883 width=29) (actual time=0.851..5.861 rows=25001 loops=1)
+         Recheck Cond: (categoria_id = 1)
+         Filter: activo
+         Heap Blocks: exact=667
+         Buffers: shared hit=691
+         ->  Bitmap Index Scan on idx_producto_categoria  (cost=0.00..270.91 rows=24883 width=0) (actual time=0.781..0.781 rows=25001 loops=1)
+               Index Cond: (categoria_id = 1)
+               Buffers: shared hit=24
+ Planning:
+   Buffers: shared hit=21
+ Planning Time: 0.238 ms
+ Execution Time: 15.266 ms
+
+Duraci¾n: 16,176 ms
+                                                                                    QUERY PLAN                                                                                    
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=88654.50..88654.75 rows=100 width=99) (actual time=562.059..562.093 rows=100 loops=1)
+   Buffers: shared hit=464512
+   ->  Sort  (cost=88654.50..89654.51 rows=400002 width=99) (actual time=562.056..562.084 rows=100 loops=1)
+         Sort Key: p.fecha DESC
+         Sort Method: top-N heapsort  Memory: 47kB
+         Buffers: shared hit=464512
+         ->  GroupAggregate  (cost=2.20..73366.71 rows=400002 width=99) (actual time=0.468..540.474 rows=200001 loops=1)
+               Group Key: p.id, c.nombre, c.apellido
+               Buffers: shared hit=464512
+               ->  Incremental Sort  (cost=2.20..60366.65 rows=400002 width=44) (actual time=0.452..375.321 rows=400002 loops=1)
+                     Sort Key: p.id, c.nombre, c.apellido
+                     Presorted Key: p.id
+                     Full-sort Groups: 12501  Sort Method: quicksort  Average Memory: 27kB  Peak Memory: 27kB
+                     Buffers: shared hit=464512
+                     ->  Merge Join  (cost=1.94..49375.69 rows=400002 width=44) (actual time=0.387..307.072 rows=400002 loops=1)
+                           Merge Cond: (p.id = lp.pedido_id)
+                           Buffers: shared hit=464512
+                           ->  Nested Loop  (cost=0.72..18101.21 rows=200001 width=35) (actual time=0.374..136.593 rows=200001 loops=1)
+                                 Buffers: shared hit=62219
+                                 ->  Index Scan using pedido_pkey on pedido p  (cost=0.42..6874.44 rows=200001 width=24) (actual time=0.010..28.195 rows=200001 loops=1)
+                                       Buffers: shared hit=2216
+                                 ->  Memoize  (cost=0.30..0.32 rows=1 width=27) (actual time=0.000..0.000 rows=1 loops=200001)
+                                       Cache Key: p.cliente_id
+                                       Cache Mode: logical
+                                       Hits: 180000  Misses: 20001  Evictions: 0  Overflows: 0  Memory Usage: 2657kB
+                                       Buffers: shared hit=60003
+                                       ->  Index Scan using cliente_pkey on cliente c  (cost=0.29..0.31 rows=1 width=27) (actual time=0.001..0.001 rows=1 loops=20001)
+                                             Index Cond: (id = p.cliente_id)
+                                             Buffers: shared hit=60003
+                           ->  Index Scan using linea_pedido_pkey on linea_pedido lp  (cost=0.42..25775.48 rows=400002 width=17) (actual time=0.010..107.529 rows=400002 loops=1)
+                                 Buffers: shared hit=402293
+ Planning:
+   Buffers: shared hit=38
+ Planning Time: 0.589 ms
+ Execution Time: 562.493 ms
+
+Duraci¾n: 564,106 ms
