@@ -47,3 +47,22 @@ SELECT p.id               AS pedido_id,
 FROM   linea_pedido lp
 JOIN   pedido      p  ON p.id  = lp.pedido_id
 JOIN   producto    pr ON pr.id = lp.producto_id;
+
+-- ----------------------------------------------------------------------------
+-- Parte C · Vista materializada de facturacion por categoria y mes
+--   Con indice unico (mes, categoria) que habilita REFRESH CONCURRENTLY.
+-- ----------------------------------------------------------------------------
+CREATE MATERIALIZED VIEW mv_facturacion_categoria_mes AS
+SELECT cat.nombre                     AS categoria,
+       date_trunc('month', p.fecha)   AS mes,
+       SUM(lp.cantidad * lp.precio_unitario) AS facturado
+FROM   linea_pedido lp
+JOIN   pedido       p   ON p.id   = lp.pedido_id
+JOIN   producto     pr  ON pr.id  = lp.producto_id
+JOIN   categoria    cat ON cat.id = pr.categoria_id
+GROUP  BY cat.nombre, date_trunc('month', p.fecha)
+ORDER  BY mes, categoria
+WITH DATA;
+
+CREATE UNIQUE INDEX mv_facturacion_cat_mes_uniq
+    ON mv_facturacion_categoria_mes (mes, categoria);
