@@ -1,0 +1,28 @@
+﻿ dif_v1_vista_menos_manual 
+---------------------------
+                         0
+
+ dif_v1_manual_menos_vista 
+---------------------------
+                         0
+
+ dif_v2_vista_menos_manual 
+---------------------------
+                         0
+
+ dif_v2_manual_menos_vista 
+---------------------------
+                         0
+
+ dif_v3_vista_menos_manual 
+---------------------------
+                         0
+
+ dif_v3_manual_menos_vista 
+---------------------------
+                         0
+
+ columnas_sensibles_expuestas 
+------------------------------
+                            0
+
