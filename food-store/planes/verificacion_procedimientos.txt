@@ -1,0 +1,115 @@
+﻿BEGIN
+CREATE PROCEDURE
+CREATE PROCEDURE
+      paso       
+-----------------
+ P1 + P2 creados
+(1 fila)
+
+                     paso                     
+----------------------------------------------
+ --- P1 caso valido: precio y stock ANTES ---
+(1 fila)
+
+ id |   nombre   | stock | precio  
+----+------------+-------+---------
+  1 | Muzzarella |    20 | 1050.00
+  2 | Coca 1.5L  |    50 |  800.00
+(2 filas)
+
+DO
+psql.exe : psql:C:/UTN/3er semestre/Bases de Datos II/UNIDAD 1/food-store/09_verificacion_procedimientos.sql:32: 
+NOTICE:  P1-VALIDO OK: pedido 202003 creado
+En línea: 1 Carácter: 168
++ ... ood-store"; & "$pg\psql.exe" -w -U postgres -h localhost -d foodstore ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (psql:C:/UTN/3er...o 202003 creado:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+           paso           
+--------------------------
+ Pedido creado (ultimos):
+(1 fila)
+
+   id   | cliente_id | forma_pago | lineas |  total  
+--------+------------+------------+--------+---------
+ 202003 |          1 | EFECTIVO   |      2 | 4500.00
+(1 fila)
+
+                        paso                         
+-----------------------------------------------------
+ Stock DESPUES del pedido valido (esperado 18 y 47):
+(1 fila)
+
+ id |   nombre   | stock 
+----+------------+-------
+  1 | Muzzarella |    18
+  2 | Coca 1.5L  |    47
+(2 filas)
+
+            paso            
+----------------------------
+ --- P1 casos invalidos ---
+(1 fila)
+
+psql:C:/UTN/3er semestre/Bases de Datos II/UNIDAD 1/food-store/09_verificacion_procedimientos.sql:66: NOTICE:  
+P1a-INVALIDO OK: R1: no se puede registrar un pedido para el cliente 2 (inactivo o inexistente).
+DO
+psql:C:/UTN/3er semestre/Bases de Datos II/UNIDAD 1/food-store/09_verificacion_procedimientos.sql:82: NOTICE:  
+P1b-INVALIDO OK: R2: no se puede vender el producto 3 (inactivo o inexistente).
+DO
+psql:C:/UTN/3er semestre/Bases de Datos II/UNIDAD 1/food-store/09_verificacion_procedimientos.sql:97: NOTICE:  
+P1c-INVALIDO OK: R3: stock insuficiente para el producto 1: pide 999 pero hay 18 disponibles.
+DO
+                              paso                              
+----------------------------------------------------------------
+ Stock tras los invalidados (debe seguir 18 y 47, sin cambios):
+(1 fila)
+
+ id |   nombre   | stock 
+----+------------+-------
+  1 | Muzzarella |    18
+  2 | Coca 1.5L  |    47
+(2 filas)
+
+          paso          
+------------------------
+ --- P2 caso valido ---
+(1 fila)
+
+psql:C:/UTN/3er semestre/Bases de Datos II/UNIDAD 1/food-store/09_verificacion_procedimientos.sql:113: NOTICE:  Stock 
+del producto 1 ajustado: 18 -> 28
+psql:C:/UTN/3er semestre/Bases de Datos II/UNIDAD 1/food-store/09_verificacion_procedimientos.sql:113: NOTICE:  
+P2-VALIDO OK: nuevo stock = 28
+DO
+ id |   nombre   | stock 
+----+------------+-------
+  1 | Muzzarella |    28
+  2 | Coca 1.5L  |    47
+(2 filas)
+
+           paso           
+--------------------------
+ --- P2 caso invalido ---
+(1 fila)
+
+psql:C:/UTN/3er semestre/Bases de Datos II/UNIDAD 1/food-store/09_verificacion_procedimientos.sql:132: NOTICE:  
+P2-INVALIDO OK: Stock no puede quedar negativo: producto 1 tiene 28 y el ajuste pedido es -999999
+DO
+ id |   nombre   | stock 
+----+------------+-------
+  1 | Muzzarella |    28
+  2 | Coca 1.5L  |    47
+(2 filas)
+
+ total_pedidos_durante_prueba 
+------------------------------
+                       200002
+(1 fila)
+
+ROLLBACK
+                             fin                             
+-------------------------------------------------------------
+ ROLLBACK: la verificacion NO persistio nada en foodstore_u3
+(1 fila)
+

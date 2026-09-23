@@ -135,3 +135,37 @@ del reporte es la foto mensual de categorías (semana analítica), no el saldo
 en tiempo real; si un área necesitara datos al día, se acorta el intervalo de
 refresco (ej. cada hora) a costo de re-agregar las 400k líneas varias veces al
 día.
+
+## Parte D — Procedimientos almacenados (objetivo 6 del TPI)
+
+**Pieza faltante detectada por la auditoría del TPI:** el repo tenía vistas
+(Parte B) y funciones trigger (TP2), pero **ningún objeto invocado con `CALL`**.
+Se agregaron dos procedimientos en PL/pgSQL (`08_procedimientos.sql`, spec en
+`specs/spec_procedimientos_almacenados.md`):
+
+| # | Procedimiento | Qué hace | Cómo se probó |
+|---|---------------|----------|---------------|
+| P1 | `registrar_pedido(cliente_id, forma_pago, items JSONB, OUT pedido_id)` | Registro de venta transaccional: valida cliente activo (R1), inserta pedido, recorre el JSONB de líneas validando producto activo (R2) y stock (R3) con `SELECT ... FOR UPDATE` (anti-sobreventa), inserta la línea con el precio congelado (R4) y descuenta el stock. Cualquier error revierte todo (atomicidad). | verificación en `09_verificacion_procedimientos.sql` |
+| P2 | `ajustar_stock(producto_id, delta, OUT nuevo_stock)` | Reposición/ajuste manual de inventario: valida vigencia, bloquea la fila, rechaza stock negativo y devuelve el nuevo valor por OUT + `RAISE NOTICE`. | idem |
+
+**Resultados verificados (corrida real, dentro de `BEGIN...ROLLBACK`):**
+
+- **P1 válido:** `CALL registrar_pedido(1, 'EFECTIVO', '[{1,2},{2,3}]', ...)` →
+  pedido `202003` creado con 2 líneas y total 4.500,00; stock de Muzzarella
+  20→18 y Coca 50→47 (descontado exactamente lo vendido).
+- **P1 inválidos (todos rechazados con la regla correcta):**
+  - cliente 2 inactivo → `R1: no se puede registrar un pedido para el cliente 2`.
+  - producto 3 inactivo → `R2: no se puede vender el producto 3`.
+  - cantidad 999 > stock 18 → `R3: stock insuficiente ... pide 999 pero hay 18`.
+  - En el caso R3 con 2 ítems (uno válido y el otro inválido), el stock **no
+    se descontó de ningún ítem** → atomicidad confirmada (stock siguió 18/47).
+- **P2 válido:** `CALL ajustar_stock(1, 10, ...)` → 18→28.
+- **P2 inválido:** ajuste −999999 → `Stock no puede quedar negativo`, stock
+  intacto.
+- `ROLLBACK` final: `pedido` quedó en 200.001 y `stock` en 20 (nada persistió).
+
+**Nota de soporte del motor (JSONB):** `p_items` usa el tipo `JSONB` (pedido
+por la cátedra), entregando las líneas del pedido como un único argumento
+tipado y demostrando tipos modernos de PostgreSQL en objetos programables.
+
+**Salida real completa:** `planes/verificacion_procedimientos.txt`.

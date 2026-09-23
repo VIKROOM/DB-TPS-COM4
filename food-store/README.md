@@ -14,6 +14,8 @@ food-store/
 ├── queries.sql             (heredado — carga de trabajo real de Semanas 3-4)
 ├── indices.sql             (nuevo — Parte A)
 ├── views.sql               (nuevo — Partes B y C: vistas + vista materializada)
+├── 08_procedimientos.sql   (nuevo — Parte D: procedimientos PL/pgSQL con CALL)
+├── 09_verificacion_procedimientos.sql (verificación P1+P2, BEGIN...ROLLBACK)
 ├── specs/                  (especificaciones de Kiro para cada pieza)
 ├── duia.md                 (bitácora de uso de IA)
 ├── informe_mediciones.md   (EXPLAIN ANALYZE antes/después, lectura y escritura)
@@ -27,8 +29,6 @@ food-store/
 ├── 07_vista_materializada.sql (creación + índice único + mediciones)
 └── planes/                 (salidas de EXPLAIN ANALYZE y \timing)
 ```
-
-## Requisitos
 
 - PostgreSQL 16+ con extensiones `pg_trgm` (indices trigram).
 - Usuario `postgres` (o uno con permisos de creación de objetos).
@@ -63,9 +63,13 @@ psql -U postgres -h localhost -d foodstore_u3 -X -f 06_verificacion_vistas.sql
 
 # 7. Vista materializada + mediciones (Parte C)
 psql -U postgres -h localhost -d foodstore_u3 -X -f 07_vista_materializada.sql
+
+# 8. Procedimientos PL/pgSQL + verificación (Parte D, objetivo 6 del TPI)
+psql -U postgres -h localhost -d foodstore_u3 -X -v ON_ERROR_STOP=1 -f 08_procedimientos.sql
+psql -U postgres -h localhost -d foodstore_u3 -X -f 09_verificacion_procedimientos.sql
 ```
 
-Todas las cargas de escritura (03/05) corren dentro de `BEGIN...ROLLBACK`:
+Todas las cargas de escritura (03/05/09) corren dentro de `BEGIN...ROLLBACK`:
 no modifican la tabla base de forma permanente.
 
 ## Resultados principales
@@ -77,6 +81,9 @@ no modifican la tabla base de forma permanente.
 | C3 · Reposición de stock | plan / tiempo | Seq Scan → Bitmap parcial · 7,0 → 4,5 ms |
 | Escritura (Parte A) | 5.000 INSERTs | 84,4 → 107,6 ms (+28%) |
 | Vista materializada | consulta | 484,9 → 0,026 ms (~18.600×) |
+| P1 · `registrar_pedido` | pedido válido | pedido 202003 + 2 líneas + stock 20→18 y 50→47 |
+| P1 · casos inválidos | R1/R2/R3 | cliente inactivo, producto inactivo y sobre-stock rechazados, sin descuento (atomicidad) |
+| P2 · `ajustar_stock` | reposición / error | +10 → 18→28 · ajuste negativo rechazado |
 
 Índice descartado por sobreindexación: `pedido(forma_pago)` (baja cardinalidad)
 y `producto(categoria_id, nombre)` (duplicado del UNIQUE existente). Detalle y

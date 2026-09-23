@@ -72,14 +72,45 @@ a la IA, no la orden "creá un índice" a ciegas).
 - **Decisión** de frecuencia de refresco: diaria (cierre de día); documento en
   el informe qué implica para los usuarios (dato del período anterior).
 
+### 6 · Procedimientos almacenados (Parte D) — cierre del objetivo 6 del TPI
+
+- **Detonante:** auditoría del repo contra las condiciones de entrega del TPI
+  → el punto "vistas, funciones y procedimientos almacenados en PL/pgSQL" no
+  estaba completo: había vistas y funciones trigger, pero **cero `CALL`**.
+- **Propuestas de la IA (OpenCode)** y decisiones sobre cada campo de la spec
+  `spec_procedimientos_almacenados.md`:
+  - **P1 `registrar_pedido`** — aceptado: operación de venta completa en el
+    motor (pedido + líneas con precio congelado + descuento de stock) con
+    entradas tipadas (`forma_pago` ENUM, `p_items JSONB` por requisito del
+    motor) y `SELECT ... FOR UPDATE` anti-sobreventa. Volver a validar R1/R2/R3
+    dentro del procedimiento refuerza en el motor las reglas que los triggers
+    ya impiden, ahora para la operación completa.
+  - **P2 `ajustar_stock`** — aceptado: mutación real de inventario con OUT +
+    `RAISE NOTICE`. Una primera versión ("recalcular_stock_bajo" que solo
+    contaba candidatos) fue **descartada por la IA al revisarla**: no
+    modificaba datos de verdad y era evidencia débil; se reescribió como
+    ajuste con validación de stock no negativo.
+  - **Ajuste del script de prueba:** la invocación de `CALL` con `NULL` como
+    argumento OUT fallaba antes de ejecutar el procedimiento ("el parámetro es
+    de salida pero el argumento no es escribible"); se corrigió pasando
+    variables locales en los bloques `DO`. Esto se documenta para la defensa:
+    PostgreSQL exige variables escribibles en los OUT de un `CALL`.
+- **Verificación:** pedido válido OK (202003, 2 líneas, stock 20→18 / 50→47);
+  cliente inactivo, producto inactivo y sobre-stock rechazados con las reglas
+  R1/R2/R3; atomicidad confirmada (el caso mixto no descontó nada); P2 +10
+  (18→28) y ajuste negativo rechazado. Todo dentro de `BEGIN...ROLLBACK`
+  (script `09_verificacion_procedimientos.sql`, salida en `planes/`).
+
 ## Resumen de decisiones
 
-- **Aceptado:** 3 índices, 3 vistas, 1 vista materializada (con índice único).
-- **Descartado:** 2 propuestas por sobreindexación (D1 baja cardinalidad, D2
-  duplicado de UNIQUE existente).
+- **Aceptado:** 3 índices, 3 vistas, 1 vista materializada (con índice único),
+  2 procedimientos PL/pgSQL (`registrar_pedido`, `ajustar_stock`).
+- **Descartado:** 2 índices por sobreindexación (D1 baja cardinalidad, D2
+  duplicado de UNIQUE existente) + 1 versión de procedimiento que solo
+  contaba sin mutar datos.
 - **Modificado:** equivalencias de nomenclatura del enunciado (usuario→cliente,
-  detalle_pedido→linea_pedido; contraseña→email/telefono), siempre documentadas
-  y verificadas.
+  detalle_pedido→linea_pedido; contraseña→email/telefono) y la invocación de
+  `CALL` con OUT escribible, siempre documentadas y verificadas.
 - Los planes de ejecución y resultados quedaron versionados en `planes/` y el
   informe en `informe_mediciones.md`.
 
