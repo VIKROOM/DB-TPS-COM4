@@ -1,0 +1,68 @@
+﻿El despliegue de duraci¾n estß activado.
+                                                                                QUERY PLAN                                                                                 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=42414.71..84720.15 rows=404041 width=47) (actual time=417.322..476.974 rows=26 loops=1)
+   Group Key: (date_trunc('month'::text, p.fecha)), cat.nombre
+   Buffers: shared hit=6081, temp read=1716 written=1722
+   ->  Gather Merge  (cost=42414.71..76282.82 rows=237671 width=47) (actual time=414.359..476.907 rows=50 loops=1)
+         Workers Planned: 1
+         Workers Launched: 1
+         Buffers: shared hit=6081, temp read=1716 written=1722
+         ->  Partial GroupAggregate  (cost=41414.70..48544.83 rows=237671 width=47) (actual time=320.578..384.437 rows=25 loops=2)
+               Group Key: (date_trunc('month'::text, p.fecha)), cat.nombre
+               Buffers: shared hit=6081, temp read=1716 written=1722
+               ->  Sort  (cost=41414.70..42008.87 rows=237671 width=24) (actual time=317.722..341.567 rows=200001 loops=2)
+                     Sort Key: (date_trunc('month'::text, p.fecha)), cat.nombre
+                     Sort Method: external merge  Disk: 6480kB
+                     Buffers: shared hit=6081, temp read=1716 written=1722
+                     Worker 0:  Sort Method: external merge  Disk: 7248kB
+                     ->  Hash Join  (cost=6151.17..15316.83 rows=237671 width=24) (actual time=42.041..246.552 rows=200001 loops=2)
+                           Hash Cond: (pr.categoria_id = cat.id)
+                           Buffers: shared hit=6036
+                           ->  Hash Join  (cost=6150.12..12775.67 rows=237671 width=25) (actual time=41.714..199.329 rows=200001 loops=2)
+                                 Hash Cond: (lp.producto_id = pr.id)
+                                 Buffers: shared hit=6019
+                                 ->  Parallel Hash Join  (cost=4358.08..10359.69 rows=237671 width=25) (actual time=30.331..119.335 rows=200001 loops=2)
+                                       Hash Cond: (lp.pedido_id = p.id)
+                                       Buffers: shared hit=4685
+                                       ->  Parallel Seq Scan on linea_pedido lp  (cost=0.00..5377.71 rows=237671 width=25) (actual time=0.004..12.330 rows=200001 loops=2)
+                                             Buffers: shared hit=3001
+                                       ->  Parallel Hash  (cost=2872.48..2872.48 rows=118848 width=16) (actual time=29.920..29.921 rows=100000 loops=2)
+                                             Buckets: 262144  Batches: 1  Memory Usage: 11488kB
+                                             Buffers: shared hit=1684
+                                             ->  Parallel Seq Scan on pedido p  (cost=0.00..2872.48 rows=118848 width=16) (actual time=0.009..9.854 rows=100000 loops=2)
+                                                   Buffers: shared hit=1684
+                                 ->  Hash  (cost=1167.02..1167.02 rows=50002 width=16) (actual time=11.238..11.239 rows=50002 loops=2)
+                                       Buckets: 65536  Batches: 1  Memory Usage: 2856kB
+                                       Buffers: shared hit=1334
+                                       ->  Seq Scan on producto pr  (cost=0.00..1167.02 rows=50002 width=16) (actual time=0.281..5.662 rows=50002 loops=2)
+                                             Buffers: shared hit=1334
+                           ->  Hash  (cost=1.02..1.02 rows=2 width=15) (actual time=0.297..0.297 rows=2 loops=2)
+                                 Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                 Buffers: shared hit=2
+                                 ->  Seq Scan on categoria cat  (cost=0.00..1.02 rows=2 width=15) (actual time=0.287..0.287 rows=2 loops=2)
+                                       Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=459
+ Planning Time: 8.726 ms
+ Execution Time: 484.888 ms
+
+Duraci¾n: 496,146 ms
+SELECT 26
+Duraci¾n: 423,153 ms
+CREATE INDEX
+Duraci¾n: 3,125 ms
+                                                           QUERY PLAN                                                           
+--------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=1.87..1.94 rows=26 width=218) (actual time=0.018..0.019 rows=26 loops=1)
+   Sort Key: mes, categoria
+   Sort Method: quicksort  Memory: 26kB
+   Buffers: shared hit=1
+   ->  Seq Scan on mv_facturacion_categoria_mes  (cost=0.00..1.26 rows=26 width=218) (actual time=0.007..0.009 rows=26 loops=1)
+         Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=21 read=1
+ Planning Time: 0.875 ms
+ Execution Time: 0.026 ms
+
+Duraci¾n: 1,187 ms
