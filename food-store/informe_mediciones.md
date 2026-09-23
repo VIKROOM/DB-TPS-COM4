@@ -107,4 +107,31 @@ que es exactamente lo que la vista garantiza.
 
 ## Parte C — Vista materializada (medición)
 
-> Se completa al crear la vista materializada.
+**Reporte elegido:** facturación por categoría y mes (Q6 de `queries.sql`),
+agregación costosa sobre `linea_pedido` (400k filas).
+
+Vista materializada `mv_facturacion_categoria_mes` creada en
+`07_vista_materializada.sql` con `WITH DATA` e índice único
+`(mes, categoria)` que habilita el `REFRESH CONCURRENTLY`.
+
+| Métrica | Consulta original (sin materializar) | Consulta sobre la materializada |
+|---------|--------------------------------------|---------------------------------|
+| Plan | `Parallel Seq Scan` sobre `linea_pedido` y `pedido`, 4 tablas | `Seq Scan` directo sobre 26 filas |
+| Tiempo | **484,9 ms** | **0,026 ms** (~18.600×) |
+| Duración psql (con \timing) | 496 ms | 1,2 ms |
+
+`REFRESH MATERIALIZED VIEW CONCURRENTLY` verificado OK (no bloquea lecturas
+concurrentes; requiere el índice único).
+
+**Frecuencia de refresco y su implicancia:** el dato cambia solo cuando entra
+al menos un pedido o línea nuevo (no hay UPDATE/DELETE de histórico). Con el
+uso esperado del reporte (panel gerencial que se consulta varias veces por
+día, no por minuto), el refresco aconsejado es **una vez al final del día**
+(`REFRESH MATERIALIZED VIEW CONCURRENTLY` en el mismo cierre que procesa la
+recaudación). Implicancia para los usuarios: entre refresco y refresco, el
+reporte refleja la facturación del **período cerrado anterior** — un pedido de
+hoy no cuenta hasta el próximo cierre. Esto es aceptable porque el objetivo
+del reporte es la foto mensual de categorías (semana analítica), no el saldo
+en tiempo real; si un área necesitara datos al día, se acorta el intervalo de
+refresco (ej. cada hora) a costo de re-agregar las 400k líneas varias veces al
+día.
