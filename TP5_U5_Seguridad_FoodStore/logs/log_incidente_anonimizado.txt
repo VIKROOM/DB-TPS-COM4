@@ -1,0 +1,12 @@
+# LOG ANONIMIZADO - SIMULACRO DE INCIDENTE (PARTE C)
+# ENVIADO A OpenCode SIN CONTEXTO EXTRA
+
+[YYYY-MM-DD HH:MM:SS TZ] LOG: connection authorized: user=app_web_anon database=food_store host=127.0.0.1
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  statement: SELECT fn_autenticar('anon_user_01@anon.test','***') AS r;
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  statement: SELECT fn_autenticar('anon_user_02@anon.test','***') AS r;
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  statement: SELECT fn_autenticar('anon_user_03@anon.test','***') AS r;
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  statement: SELECT fn_autenticar('app_web_anon@anon.test','***') AS r;
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  statement: SELECT * FROM usuario;
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  statement: GRANT admin_datos TO app_web_anon;
+[YYYY-MM-DD HH:MM:SS TZ] ERROR:  permission denied for role admin_datos
+[YYYY-MM-DD HH:MM:SS TZ] LOG: disconnection: session time: <TIEMPO> user=app_web_anon database=food_store host=127.0.0.1

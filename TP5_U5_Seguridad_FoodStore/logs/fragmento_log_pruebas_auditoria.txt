@@ -1,0 +1,10 @@
+# FRAGMENTO DE LOG - PRUEBAS DE AUDITORÍA (PARTE B)
+# ANONIMIZADO - ENTORNO DE DESARROLLO
+
+[YYYY-MM-DD HH:MM:SS TZ] LOG: connection authorized: user=[USUARIO_PRUEBA] database=food_store host=[IP_DEV]
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  statement: SELECT count(*) FROM producto WHERE eliminado = FALSE;
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  statement: INSERT INTO categoria(nombre,descripcion) VALUES ('CAT_AUDIT_TEST','PRUEBA AUDITORIA') ON CONFLICT DO NOTHING;
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  statement: UPDATE producto SET descripcion = COALESCE(descripcion,'') WHERE id = <ID_PRODUCTO>;
+[YYYY-MM-DD HH:MM:SS TZ] LOG:  connection authorized: user=[USUARIO_FALLIDO] database=food_store host=[IP_DEV]
+[YYYY-MM-DD HH:MM:SS TZ] FATAL:  password authentication failed for user "[USUARIO_FALLIDO]"
+[YYYY-MM-DD HH:MM:SS TZ] LOG: disconnection: session time: <TIEMPO> user=[USUARIO_PRUEBA] database=food_store host=[IP_DEV]

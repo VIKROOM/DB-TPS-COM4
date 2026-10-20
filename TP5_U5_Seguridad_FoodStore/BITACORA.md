@@ -1,0 +1,10 @@
+# BITACORA.md - Uso de IA (OpenCode / Kiro) - TP U5
+
+| Prompt enviado a la IA | Respuesta relevante recibida (resumida) | Validación o corrección humana aplicada |
+|---|---|---|
+| **[OpenCode]** "Auditar roles.sql aplicando principio de mínimo privilegio. Buscar privilegios excesivos." | Propuso reemplazar GRANT puntuales por `GRANT ALL ON ALL TABLES IN SCHEMA public` para `rol_soporte`. | **RECHAZADO.** Se mantuvo GRANT a nivel de columna sobre `usuario` (`SELECT` de columnas necesarias + `UPDATE(celular)` únicamente). Se consideró excesivo e inseguro. Registrado como corrección. |
+| **[Kiro]** "Generar requirements + design para TP U5 Parte A con justificación por rol." | Generó estructura con roles y justificación. Propuso agregar algunos privilegios genéricos. | **AJUSTADO.** Se acotaron privilegios por objeto/columna, se agregó requisito explícito de `ALTER DEFAULT PRIVILEGES` y se reforzó verificación con `information_schema.role_table_grants`. |
+| **[OpenCode]** "Reconstruir incidente desde este log anonimizado (sin contexto). Proponer hipótesis de contención." | Reconstruyó cronología (fallidos -> exitoso -> lectura masiva -> intento de escalamiento). Propuso medidas: bloquear IP, forzar cambio de contraseñas, revocar rol. Asumió horario/origen con cierta inferencia. | **CONTRASTADO CRÍTICAMENTE.** Se verificó que el log **NO** muestra IP externa distinta ni timestamp absoluto concluyente; se confirmó que el intento de `GRANT admin_datos TO app_web_anon` **falló** (`permission denied`). Se descartaron afirmaciones no sustentadas. Decisión de contención tomada por el equipo con base en evidencia. |
+| **[OpenCode]** "Generar script para crear usuario_anon" | Propuso copiar valores parcialmente ofuscados o truncar datos reales. | **RECHAZADO.** Se utilizaron datos **sintéticos deterministas** (`md5` + salt + prefijos `NombreAnon/ApellidoAnon`) sin PII real. Contraseña reemplazada por `***ANON***`. |
+
+**Observación obligatoria:** Se documenta explícitamente al menos un caso donde la IA propuso un permiso más amplio de lo necesario (GRANT ALL) y fue **detectado, rechazado y corregido** por validación humana.
