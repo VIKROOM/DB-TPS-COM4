@@ -1,0 +1,33 @@
+﻿AUTOEVALUACION OBJETIVA - TP U7 NoSQL Food Store
+Fecha: 2026-11-03 15:00:31
+
+Criterio                                                   Esperado   Obtenido                           Estado
+-------------------------------------------------------------------------------------------------------------------
+Archivo presente: consultas_mongodb.js                     SI         SI                                 OK
+Archivo presente: consultas_postgresql.sql                 SI         SI                                 OK
+Archivo presente: mongodb/01_crear_coleccion.js            SI         SI                                 OK
+Archivo presente: mongodb/02_datos_pedidos.js              SI         SI                                 OK
+Archivo presente: mongodb/03_verificacion_integridad.js    SI         SI                                 OK
+Archivo presente: sql/01_exportar_pedidos_mongodb.sql      SI         SI                                 OK
+Archivo presente: informe/Informe_TP_U7_NoSQL_FoodStore.pdf SI         NO                                 FALLA
+Archivo presente: BITACORA_IA.md                           SI         NO                                 FALLA
+Archivo presente: AUTOEVALUACION.md                        SI         NO                                 FALLA
+Archivo presente: README.md                                SI         NO                                 FALLA
+Pedidos de origen en el lote                               12         12                                 OK
+Lineas de origen en el lote                                24         24                                 OK
+Lineas huerfanas en PostgreSQL                             0          0                                  OK
+Lineas con cantidad/importe invalido                       0          0                                  OK
+Documentos migrados en MongoDB                             12         12                                 OK
+Consulta a) cantidad de pedidos                            12         12                                 OK
+Consulta b) cantidad PG                                    11         11                                 OK
+Consulta b) IDs PG                                         2,3,4,5,6,7,8,9,10,11,12 2,3,4,5,6,7,8,9,10,11,12           OK
+Consulta b) importe PG                                     558179.00  558179.00                          OK
+Consulta c) cantidad PG                                    2          2                                  OK
+Consulta c) IDs PG                                         1,2        1,2                                OK
+Consulta c) importe PG                                     79810.00   79810.00                           OK
+Importe total PG                                           560979,00  560979,00                          OK
+Productos referenciados PG                                 1,2,6,7,11,12,16,17,21,22,26,27,31,32,36,37,41,42,46,47,51,52 1,2,6,7,11,12,16,17,21,22,26,27,31,32,36,37,41,42,46,47,51,52 OK
+Verificacion de integridad MongoDB                         OK         OK                                 OK
+Paginas del PDF (maximo 5)                                 <=5        PDF ausente                        FALLA
+
+Comprobaciones: 26 | Fallas: 5
