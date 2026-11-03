@@ -2,6 +2,7 @@
 
 **Alumno:** Facundo Chacón · **Comisión 4** · **Motor:** PostgreSQL 17.10
 **Base principal:** `foodstore` · **Base de recuperación:** `foodstore_restore_test`
+**Repositorio:** <https://github.com/VIKROOM/DB-TPS-COM4>
 
 ## Respaldo utilizado
 

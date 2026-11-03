@@ -14,7 +14,9 @@ TP6_U6_Mantenimiento_FoodStore/
 ├── health_check.sql               4+ controles de salud (tamaño, actividad, tablas, consultas)
 ├── maintenance.sql                Observación de autovacuum + VACUUM (ANALYZE) justificado
 ├── restore_test.ps1               Simulacro contra reloj en foodstore_restore_test
-├── informe_u6.md / informe_u6.pdf Informe post-incidente (1 página)
+├── informe_u6.md / informe_u6.pdf Informe post-incidente (1 página, exigido por la cátedra)
+├── informe_u6_tareas.pdf          Informe ampliado dividido por las tareas ejecutadas
+├── informe/                       Generadores ReportLab de ambos PDF (métricas reales)
 ├── BITACORA_IA.md                 Uso de IA: propuesta, revisión humana y corrección
 ├── README.md
 ├── soporte/
@@ -125,6 +127,24 @@ Primero observa: parámetros de autovacuum, transacciones largas, tuplas muertas
 | Integridad lógica | `productos_invalidos = 0`, `detalles_invalidos = 0`, huérfanos = 0 |
 | Estructura | 16 restricciones y vista `public.detalle_pedido` restauradas |
 | Prueba de falla | `pg_dump` con tabla inexistente: exit 1, log `ERROR` y sin `.dump` válido |
+
+## Informes
+
+La entrega incluye dos documentos complementarios, ambos generados con ReportLab a partir de los archivos de `evidencias/`:
+
+| Documento | Contenido | Páginas |
+|---|---|---|
+| `informe_u6.pdf` | Informe post-incidente exigido por la cátedra: respaldo, RPO/RTO, validación, problema real, mejora y uso de IA. | 1 |
+| `informe_u6_tareas.pdf` | Informe ampliado dividido por las 7 tareas ejecutadas, con resultados, problemas corregidos, evidencias, commits y comandos de reproducción. | 7 |
+
+Para regenerarlos (requiere `python -m pip install reportlab`):
+
+```powershell
+python .\informe\generar_informe.py
+python .\informe\generar_informe_tareas.py
+```
+
+Repositorio: <https://github.com/VIKROOM/DB-TPS-COM4>
 
 ## Evidencias
 

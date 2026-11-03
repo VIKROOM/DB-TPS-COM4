@@ -22,6 +22,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EVID = os.path.join(ROOT, "evidencias")
 SALIDA = os.path.join(ROOT, "informe_u6.pdf")
+REPO = "https://github.com/VIKROOM/DB-TPS-COM4"
 
 with open(os.path.join(EVID, "restore_metrics.json"), encoding="utf-8") as fh:
     m = json.load(fh)
@@ -86,6 +87,8 @@ def tabla(encabezados, filas, anchos):
 
 story.append(P("Informe post-incidente - Mantenimiento de Food Store", titulo_doc))
 story.append(P("Bases de Datos II · Comisión 4 · Facundo Chacón · PostgreSQL 17.10 · Base: foodstore", subtitulo))
+story.append(P(f'Repositorio: <link href="{REPO}" color="#2E6DA4">{REPO}</link>', ParagraphStyle(
+    "repo", fontName="Arial", fontSize=7.8, leading=9.4, textColor=GRIS, spaceAfter=3)))
 
 story.append(P("1. Respaldo utilizado", seccion))
 tabla(
