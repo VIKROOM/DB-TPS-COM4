@@ -31,9 +31,17 @@ TP7_U7_NoSQL_FoodStore/
 ├── evidencia/                        Salidas reales de todas las ejecuciones
 └── informe/
     ├── Informe_TP_U7_NoSQL_FoodStore.md
+    ├── Informe_TP_U7_NoSQL_FoodStore.pdf   ENTREGABLE (2 páginas, límite 5)
+    ├── Informe_TP_U7_Actividades.pdf       Informe ampliado: una sección por actividad
     ├── generar_informe.py
-    └── Informe_TP_U7_NoSQL_FoodStore.pdf   ENTREGABLE (≤ 5 páginas)
+    └── generar_informe_actividades.py
 ```
+
+## Informes
+
+- `informe/Informe_TP_U7_NoSQL_FoodStore.pdf` — **entrega oficial**, 2 páginas (límite 5).
+- `informe/Informe_TP_U7_Actividades.pdf` — informe ampliado de 3 páginas, con una sección
+  por actividad (consigna, desarrollo, evidencia y verificación) y el enlace al repositorio.
 
 ## Modelo documental (resumen)
 

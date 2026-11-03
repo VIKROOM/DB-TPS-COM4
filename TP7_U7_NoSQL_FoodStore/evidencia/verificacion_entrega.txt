@@ -1,5 +1,5 @@
 ﻿AUTOEVALUACION OBJETIVA - TP U7 NoSQL Food Store
-Fecha: 2026-11-03 15:04:45
+Fecha: 2026-11-03 15:16:31
 
 Criterio                                                   Esperado   Obtenido                           Estado
 -------------------------------------------------------------------------------------------------------------------

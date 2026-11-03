@@ -96,7 +96,8 @@ reales (no sobre el texto del informe).
 | PDF único de hasta 5 páginas sin contar código | **2 páginas** verificadas con `pypdf` | OK |
 | Modelo, evidencias, tabla de verificación, contraste y conclusión | Las 5 secciones están en el PDF | OK |
 | `consultas_mongodb.js` y `consultas_postgresql.sql` adjuntos | Ambos en la raíz del TP | OK |
-| Integrante y repositorio identificados | Portada del PDF y README | OK |
+| Integrante y repositorio identificados | Portada, pie de página y cierre del PDF; enlace cliqueable a `https://github.com/VIKROOM/DB-TPS-COM4` | OK |
+| Informe ampliado por actividad | `informe/Informe_TP_U7_Actividades.pdf` (3 páginas, una sección por A1–A7) | OK |
 | Sin imágenes decorativas ni datos personales reales | Solo tablas, código y salidas; cliente de prueba sin email/teléfono | OK |
 
 ---
@@ -147,6 +148,7 @@ Antes de llegar a 26/26 se corrigieron dos detalles de la propia autoevaluación
 |---|---|---|
 | La comprobación de páginas marcaba FALLA con PDF de 2 páginas | Comparaba por igualdad de texto contra el literal `<=5` | El criterio ahora incluye el número obtenido y se compara `SI`, igual que el resto |
 | El pie del PDF decía «Página 1 de 5» con un PDF de 2 páginas | El total estaba fijo en el generador | Se implementó `NumberedCanvas` para escribir «Página X de Y» con el total real |
+| El informe por actividades generaba 4 páginas y la última tenía un solo párrafo | La tabla de migración ocupaba 7 filas y empujaba el cierre | Se compactó a 4 filas y se ajustó la tipografía: 3 páginas balanceadas, sin títulos huérfanos |
 
 ---
 
