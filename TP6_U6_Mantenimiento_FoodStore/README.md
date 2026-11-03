@@ -15,8 +15,9 @@ TP6_U6_Mantenimiento_FoodStore/
 ├── maintenance.sql                Observación de autovacuum + VACUUM (ANALYZE) justificado
 ├── restore_test.ps1               Simulacro contra reloj en foodstore_restore_test
 ├── informe_u6.md / informe_u6.pdf Informe post-incidente (1 página, exigido por la cátedra)
-├── informe_u6_tareas.pdf          Informe ampliado dividido por las tareas ejecutadas
-├── informe/                       Generadores ReportLab de ambos PDF (métricas reales)
+├── informe_u6_tareas.pdf          Informe ampliado dividido por las tareas internas ejecutadas
+├── informe_u6_actividades.pdf     Informe por las 5 actividades (Partes 1 a 5) de la consigna
+├── informe/                       Generadores ReportLab de los PDF (métricas reales)
 ├── BITACORA_IA.md                 Uso de IA: propuesta, revisión humana y corrección
 ├── README.md
 ├── soporte/
@@ -135,12 +136,14 @@ La entrega incluye dos documentos complementarios, ambos generados con ReportLab
 | Documento | Contenido | Páginas |
 |---|---|---|
 | `informe_u6.pdf` | Informe post-incidente exigido por la cátedra: respaldo, RPO/RTO, validación, problema real, mejora y uso de IA. | 1 |
-| `informe_u6_tareas.pdf` | Informe ampliado dividido por las 7 tareas ejecutadas, con resultados, problemas corregidos, evidencias, commits y comandos de reproducción. | 7 |
+| `informe_u6_actividades.pdf` | Informe organizado por las 5 actividades de la consigna (Partes 1 a 5): qué se hizo en cada una, resultados, evidencias y criterios de evaluación. | 8 |
+| `informe_u6_tareas.pdf` | Informe ampliado dividido por las 7 tareas internas ejecutadas, con resultados, problemas corregidos, evidencias, commits y comandos de reproducción. | 7 |
 
 Para regenerarlos (requiere `python -m pip install reportlab`):
 
 ```powershell
 python .\informe\generar_informe.py
+python .\informe\generar_informe_actividades.py
 python .\informe\generar_informe_tareas.py
 ```
 
