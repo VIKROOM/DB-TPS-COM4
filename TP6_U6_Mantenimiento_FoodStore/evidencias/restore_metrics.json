@@ -1,0 +1,23 @@
+{
+    "fecha_simulacro":  "2026-11-02T22:56:00.3771887-03:00",
+    "respaldo_archivo":  "foodstore_20261102_224500.dump",
+    "respaldo_fecha":  "2026-11-02 22:45:02",
+    "respaldo_bytes":  7338155,
+    "respaldo_sha256":  "3EFB2D089D8A14CB828684356C8CFB75A054D7AD5FDEF2D1B09CA135CB286CB3",
+    "base_destino":  "foodstore_restore_test",
+    "rto_segundos":  4.91,
+    "rto_previsto_seg":  1200,
+    "rto_cumple":  true,
+    "rpo_segundos":  658,
+    "rpo_previsto_seg":  86400,
+    "rpo_cumple":  true,
+    "conteos_coinciden":  true,
+    "productos_invalidos":  0,
+    "detalles_invalidos":  0,
+    "huerfanos":  0,
+    "restricciones":  16,
+    "validaciones":  "OK: conteos, invalid=0, huerfanos=0, restricciones y vista",
+    "resultado":  "OK",
+    "error":  "",
+    "base_conservada":  true
+}

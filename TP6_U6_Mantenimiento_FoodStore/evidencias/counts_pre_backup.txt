@@ -1,0 +1,7 @@
+categoria|2
+cliente|20001
+detalle_pedido|400002
+pedido|200001
+producto|50002
+suma_cantidad|4202087
+suma_importe|11544138050.00

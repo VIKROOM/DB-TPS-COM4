@@ -1,0 +1,20 @@
+﻿2026-11-02 22:56:00 [INFO] ============================================================
+2026-11-02 22:56:00 [INFO] Inicio simulacro | destino=foodstore_restore_test | usuario=mant_restore | host=localhost:5432
+2026-11-02 22:56:00 [INFO] Preflight de conexiones OK: rolconnlimit=10 (pg_restore -j 4 requiere >= 5).
+2026-11-02 22:56:00 [INFO] Respaldo a probar: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\backups\foodstore_20261102_224500.dump (7.338.155 bytes, 2026-11-02 22:45:02)
+2026-11-02 22:56:01 [INFO] SHA-256 verificado: 3EFB2D089D8A14CB828684356C8CFB75A054D7AD5FDEF2D1B09CA135CB286CB3
+2026-11-02 22:56:01 [INFO] pg_restore --list OK (45 entradas).
+2026-11-02 22:56:01 [INFO] Snapshot de conteos: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\logs\counts_foodstore_20261102_224500.txt (7 controles)
+2026-11-02 22:56:01 [INFO] Eliminando base descartable existente 'foodstore_restore_test' (-Force)...
+2026-11-02 22:56:01 [INFO] Cronometro iniciado. Creando 'foodstore_restore_test'...
+2026-11-02 22:56:02 [INFO] Restaurando 'foodstore_20261102_224500.dump' en 'foodstore_restore_test'...
+2026-11-02 22:56:04 [INFO] pg_restore finalizo sin errores.
+2026-11-02 22:56:04 [INFO] Conteos coincidentes con el snapshot (7 controles).
+2026-11-02 22:56:05 [INFO] Validaciones: productos_invalidos=0 detalles_invalidos=0 huerfanos=0 restricciones=16 vista_detalle_pedido=detalle_pedido
+2026-11-02 22:56:06 [INFO] Evidencia de validaciones: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\logs\restore_validaciones_20261102_225600.txt
+2026-11-02 22:56:06 [INFO] RTO observado: 4,91 s (objetivo <= 1200 s) -> CUMPLE
+2026-11-02 22:56:06 [INFO] RPO observado: 658 s (~0,2 h) (objetivo <= 86.400 s) -> CUMPLE
+2026-11-02 22:56:06 [INFO] Base 'foodstore_restore_test' conservada para inspeccion. Limpieza manual: dropdb -h localhost -U postgres --if-exists foodstore_restore_test
+2026-11-02 22:56:06 [INFO] Metricas: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\logs\restore_metrics_20261102_225600.json
+2026-11-02 22:56:06 [INFO] RESULTADO: SIMULACRO VALIDADO
+2026-11-02 22:56:06 [INFO] ============================================================
