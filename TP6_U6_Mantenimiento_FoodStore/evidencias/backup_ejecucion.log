@@ -1,0 +1,14 @@
+﻿2026-11-02 22:45:00 [INFO] ============================================================
+2026-11-02 22:45:00 [INFO] Inicio respaldo | base=foodstore | usuario=mant_backup | host=localhost:5432
+2026-11-02 22:45:00 [INFO] Destino=C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\backups | retencion=14d | PostgreSQL bin=C:\Program Files\PostgreSQL\17\bin
+2026-11-02 22:45:00 [INFO] Archivo objetivo: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\backups\foodstore_20261102_224500.dump
+2026-11-02 22:45:00 [INFO] Snapshot de conteos: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\logs\counts_foodstore_20261102_224500.txt (7 controles)
+2026-11-02 22:45:00 [INFO] Ejecutando pg_dump -Fc -Z 6 sobre 'foodstore'...
+2026-11-02 22:45:02 [INFO] pg_dump OK: 7.338.155 bytes (7,00 MB)
+2026-11-02 22:45:02 [INFO] Verificacion pg_restore --list OK (45 entradas en el TOC)
+2026-11-02 22:45:02 [INFO] SHA-256: 3EFB2D089D8A14CB828684356C8CFB75A054D7AD5FDEF2D1B09CA135CB286CB3
+2026-11-02 22:45:02 [INFO] Respaldo valido: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\backups\foodstore_20261102_224500.dump
+2026-11-02 22:45:02 [INFO] Retencion aplicada: 0 archivo(s) .dump/.sha256 eliminados (limite 2026-10-19 22:45)
+2026-11-02 22:45:02 [INFO] Bitacora: OK registrado en mantenimiento.bitacora
+2026-11-02 22:45:02 [INFO] Fin OK en 1.9 s. Archivo: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\backups\foodstore_20261102_224500.dump
+2026-11-02 22:45:02 [INFO] ============================================================

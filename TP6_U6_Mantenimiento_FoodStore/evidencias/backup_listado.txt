@@ -1,0 +1,60 @@
+﻿;
+; Archive created at 2026-11-02 22:45:00
+;     dbname: foodstore
+;     TOC Entries: 49
+;     Compression: gzip
+;     Dump Version: 1.16-0
+;     Format: CUSTOM
+;     Integer: 4 bytes
+;     Offset: 8 bytes
+;     Dumped from database version: 17.10
+;     Dumped by pg_dump version: 17.10
+;
+;
+; Selected TOC Entries:
+;
+6; 2615 24860 SCHEMA - mantenimiento postgres
+4982; 0 0 ACL - SCHEMA mantenimiento postgres
+860; 1247 16392 TYPE public forma_pago postgres
+230; 1259 24862 TABLE mantenimiento bitacora postgres
+4983; 0 0 ACL mantenimiento TABLE bitacora postgres
+229; 1259 24861 SEQUENCE mantenimiento bitacora_id_seq postgres
+4984; 0 0 ACL mantenimiento SEQUENCE bitacora_id_seq postgres
+221; 1259 16400 TABLE public categoria postgres
+220; 1259 16399 SEQUENCE public categoria_id_seq postgres
+225; 1259 16430 TABLE public cliente postgres
+224; 1259 16429 SEQUENCE public cliente_id_seq postgres
+228; 1259 16452 TABLE public linea_pedido postgres
+231; 1259 24874 VIEW public detalle_pedido postgres
+227; 1259 16440 TABLE public pedido postgres
+226; 1259 16439 SEQUENCE public pedido_id_seq postgres
+223; 1259 16410 TABLE public producto postgres
+222; 1259 16409 SEQUENCE public producto_id_seq postgres
+4975; 0 24862 TABLE DATA mantenimiento bitacora postgres
+4966; 0 16400 TABLE DATA public categoria postgres
+4970; 0 16430 TABLE DATA public cliente postgres
+4973; 0 16452 TABLE DATA public linea_pedido postgres
+4972; 0 16440 TABLE DATA public pedido postgres
+4968; 0 16410 TABLE DATA public producto postgres
+4985; 0 0 SEQUENCE SET mantenimiento bitacora_id_seq postgres
+4986; 0 0 SEQUENCE SET public categoria_id_seq postgres
+4987; 0 0 SEQUENCE SET public cliente_id_seq postgres
+4988; 0 0 SEQUENCE SET public pedido_id_seq postgres
+4989; 0 0 SEQUENCE SET public producto_id_seq postgres
+4813; 2606 24872 CONSTRAINT mantenimiento bitacora bitacora_pkey postgres
+4794; 2606 16408 CONSTRAINT public categoria categoria_nombre_key postgres
+4796; 2606 16406 CONSTRAINT public categoria categoria_pkey postgres
+4803; 2606 16438 CONSTRAINT public cliente cliente_email_key postgres
+4805; 2606 16436 CONSTRAINT public cliente cliente_pkey postgres
+4811; 2606 16458 CONSTRAINT public linea_pedido linea_pedido_pkey postgres
+4809; 2606 16446 CONSTRAINT public pedido pedido_pkey postgres
+4799; 2606 16423 CONSTRAINT public producto producto_categoria_id_nombre_key postgres
+4801; 2606 16421 CONSTRAINT public producto producto_pkey postgres
+4814; 1259 24873 INDEX mantenimiento idx_bitacora_tarea_estado_fin postgres
+4806; 1259 16469 INDEX public idx_pedido_cliente postgres
+4807; 1259 16471 INDEX public idx_pedido_fecha postgres
+4797; 1259 16470 INDEX public idx_producto_categoria postgres
+4817; 2606 16459 FK CONSTRAINT public linea_pedido linea_pedido_pedido_id_fkey postgres
+4818; 2606 16464 FK CONSTRAINT public linea_pedido linea_pedido_producto_id_fkey postgres
+4816; 2606 16447 FK CONSTRAINT public pedido pedido_cliente_id_fkey postgres
+4815; 2606 16424 FK CONSTRAINT public producto producto_categoria_id_fkey postgres

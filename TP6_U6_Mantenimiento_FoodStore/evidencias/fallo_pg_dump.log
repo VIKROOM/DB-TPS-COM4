@@ -1,0 +1,24 @@
+﻿2026-11-02 22:46:15 [INFO] ============================================================
+2026-11-02 22:46:15 [INFO] Inicio respaldo | base=foodstore | usuario=mant_backup | host=localhost:5432
+2026-11-02 22:46:15 [INFO] Destino=C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\backups | retencion=14d | PostgreSQL bin=C:\Program Files\PostgreSQL\17\bin
+2026-11-02 22:46:15 [INFO] Archivo objetivo: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\backups\foodstore_20261102_224615.dump
+2026-11-02 22:46:15 [INFO] Snapshot de conteos: C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\logs\counts_foodstore_20261102_224615.txt (7 controles)
+2026-11-02 22:46:15 [INFO] Ejecutando pg_dump -Fc -Z 6 sobre 'foodstore'...
+2026-11-02 22:46:16 [ERROR] ERROR: pg_dump: error: no se encontraron tablas coincidentes
+2026-11-02 22:46:16 [WARN] Se elimino el archivo .parcial incompleto.
+2026-11-02 22:46:16 [INFO] Bitacora: ERROR registrado en mantenimiento.bitacora
+2026-11-02 22:46:16 [INFO] ============================================================
+powershell.exe : pg_dump: error: no se encontraron tablas coincidentes
+En línea: 1 Carácter: 98
++ ... re'; $out = & powershell -NoProfile -ExecutionPolicy Bypass -File "$r ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (pg_dump: error:...as coincidentes:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+En C:\UTN\3er semestre\Bases de Datos II\DB-TPS-COM4\TP6_U6_Mantenimiento_FoodStore\backup_foodstore.ps1: 254 
+Carácter: 5
++     throw $mensaje
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (pg_dump: error:...as coincidentes:String) [], RuntimeException
+    + FullyQualifiedErrorId : pg_dump: error: no se encontraron tablas coincidentes
+ 
