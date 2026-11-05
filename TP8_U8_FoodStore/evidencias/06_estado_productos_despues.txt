@@ -1,0 +1,10 @@
+=== ESTADO DE PRODUCTOS EN EL SERVIDOR ===
+ id |      nombre       | precio  | stock | activo 
+----+-------------------+---------+-------+--------
+  1 | Muzzarella        | 1150.00 |    20 | t
+  2 | Coca 1.5L         |  800.00 |    50 | t
+  3 | Empanada de carne |  450.00 |    30 | t
+  4 | Agua 500ml        |  300.00 |    10 | t
+  5 | Flan casero       |  600.00 |     5 | f
+(5 rows)
+

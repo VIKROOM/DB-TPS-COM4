@@ -1,0 +1,31 @@
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TYPE
+CREATE TYPE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 3
+INSERT 0 5
+INSERT 0 3
+INSERT 0 3
+INSERT 0 5
+       tabla       | filas 
+-------------------+-------
+ seed_producto     |     5
+ seed_pedido       |     3
+ seed_linea_pedido |     5
+(3 rows)
+
+
+CREATE VIEW
+    objeto    | filas 
+--------------+-------
+ vista_creada |     5
+(1 row)
+

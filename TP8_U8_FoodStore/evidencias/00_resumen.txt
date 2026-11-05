@@ -1,0 +1,40 @@
+TP8 · Food Store · resumen de ejecucion
+==========================================================================
+Fecha de copia inicial: 2026-11-05 01:54:38.359599+00
+Filas importadas en snapshot_servidor: 5
+Casos: C2-A ('CONFLICTO', 'PRECIO_CAMBIADO', '2026-11-05T01:54:38.841Z') | C2-B ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:38.867Z') | C3 ('RECHAZADO', 'STOCK_INSUFICIENTE', '2026-11-05T01:54:38.886Z') | C4 ('RECHAZADO', 'PRODUCTO_DADO_DE_BAJA', '2026-11-05T01:54:39.158Z') | C5 ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:39.173Z') | C6 ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:39.184Z') (sin reevaluar)
+
+Invariantes PostgreSQL:
+=== INVARIANTES POSTGRESQL ===
+    tabla     | filas 
+--------------+-------
+ cliente      |     3
+ linea_pedido |     5
+ pedido       |     3
+ producto     |     5
+(4 rows)
+
+    metrica     |  valor  
+----------------+---------
+ suma_stock     | 115
+ importe_lineas | 5750.00
+(2 rows)
+
+Diff invariantes antes/despues:
+SIN DIFERENCIAS: pedidos, lineas, stock e importe no cambiaron.
+
+Archivos generados:
+  - 00_resumen.txt
+  - 01_seed_y_vista.txt
+  - 02_pruebas_sqlite.txt
+  - 03_snapshot_export.txt
+  - 04_semaforo_casos.txt
+  - 05_verificacion_postgres_antes.txt
+  - 05_verificacion_postgres_despues.txt
+  - 05_verificacion_postgres_diff.txt
+  - 06_estado_productos_antes.txt
+  - 06_estado_productos_despues.txt
+  - 07_revision_codigo.txt
+  - snapshot_v1.csv
+  - snapshot_v2.csv
+  - snapshot_v3.csv

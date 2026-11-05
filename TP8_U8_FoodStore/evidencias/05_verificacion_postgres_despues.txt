@@ -1,0 +1,15 @@
+=== INVARIANTES POSTGRESQL ===
+    tabla     | filas 
+--------------+-------
+ cliente      |     3
+ linea_pedido |     5
+ pedido       |     3
+ producto     |     5
+(4 rows)
+
+    metrica     |  valor  
+----------------+---------
+ suma_stock     | 115
+ importe_lineas | 5750.00
+(2 rows)
+

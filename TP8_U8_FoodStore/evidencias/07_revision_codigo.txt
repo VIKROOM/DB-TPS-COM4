@@ -1,0 +1,357 @@
+REVISION DE CODIGO · TP8 · evidencia reproducible
+==========================================================================
+Se levanta PostgreSQL 16 portable y se ejecutan los scripts reales
+de U3 y U5 sobre bases de prueba. Cada hallazgo se comprueba con
+consultas al motor, no por inspeccion visual.
+
+--------------------------------------------------------------------------
+Preparacion U3: food-store/schema.sql
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+CREATE TYPE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+
+--------------------------------------------------------------------------
+Datos minimos de prueba U3
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+INSERT 0 2
+INSERT 0 3
+INSERT 0 3
+INSERT 0 2
+INSERT 0 2
+
+--------------------------------------------------------------------------
+Preparacion U3: food-store/views.sql
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+SELECT 2
+CREATE INDEX
+
+--------------------------------------------------------------------------
+Preparacion U3: food-store/08_procedimientos.sql
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+CREATE PROCEDURE
+CREATE PROCEDURE
+
+--------------------------------------------------------------------------
+H3 · La vista V2 filtra c.activo = TRUE y pierde historial
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+      metrica      | valor 
+-------------------+-------
+ pedido_total      | 2
+ v_pedidos_cliente | 1
+(2 rows)
+
+ pedido_oculto | cliente | activo 
+---------------+---------+--------
+             2 | Caro    | f
+(1 row)
+
+--------------------------------------------------------------------------
+H5 · Estado antes de una venta invalida
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+ secuencia_antes 
+-----------------
+               2
+(1 row)
+
+ pedidos_antes 
+---------------
+             2
+(1 row)
+
+--------------------------------------------------------------------------
+H5 · Venta con producto inexistente (debe fallar)
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+ERROR:  R2: no se puede vender el producto 999 (inactivo o inexistente).
+CONTEXT:  PL/pgSQL function registrar_pedido(bigint,forma_pago,jsonb,bigint) line 44 at RAISE
+
+--------------------------------------------------------------------------
+H5 · No hay pedido huerfano; solo avanza la secuencia
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+ secuencia_despues 
+-------------------
+                 3
+(1 row)
+
+ pedidos_despues 
+-----------------
+               2
+(1 row)
+
+ filas_huerfanas 
+-----------------
+               0
+(1 row)
+
+--------------------------------------------------------------------------
+H4 · Relaciones que esperan los scripts de U5 vs. las reales de U3
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+ usuario | detalle_pedido | cliente | linea_pedido 
+---------+----------------+---------+--------------
+         |                | cliente | linea_pedido
+(1 row)
+
+--------------------------------------------------------------------------
+H4 · Al aplicar el GRANT de U5 sobre el esquema U3 falla
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u3" as user "postgres".
+CREATE ROLE
+ERROR:  relation "detalle_pedido" does not exist
+
+--------------------------------------------------------------------------
+Preparacion U5: tablas que esperan sus scripts
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u5" as user "postgres".
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 2
+
+--------------------------------------------------------------------------
+H6 · 01_roles_permisos_minimo_privilegio.sql: el ultimo ALTER DEFAULT PRIVILEGES con columnas no es valido
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u5" as user "postgres".
+CREATE ROLE
+CREATE ROLE
+CREATE ROLE
+CREATE ROLE
+CREATE ROLE
+CREATE ROLE
+GRANT ROLE
+GRANT ROLE
+GRANT ROLE
+GRANT ROLE
+GRANT ROLE
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+ALTER DEFAULT PRIVILEGES
+ALTER DEFAULT PRIVILEGES
+ALTER DEFAULT PRIVILEGES
+ERROR:  default privileges cannot be set for columns
+
+--------------------------------------------------------------------------
+H6 · Default privileges realmente registrados (sin columnas)
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u5" as user "postgres".
+   rol    | esquema | tipo_objeto |                                         acl                                         
+----------+---------+-------------+-------------------------------------------------------------------------------------
+ postgres | public  | r           | {rol_app_lectura=r/postgres,rol_app_escritura=arw/postgres,rol_reportes=r/postgres}
+(1 row)
+
+--------------------------------------------------------------------------
+Preparacion U5: 04_usuario_anon_anonimizacion.sql
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u5" as user "postgres".
+NOTICE:  table "usuario_anon" does not exist, skipping
+DROP TABLE
+SELECT 2
+CREATE INDEX
+CREATE INDEX
+ total_usuario 
+---------------
+             2
+(1 row)
+
+ total_usuario_anon 
+--------------------
+                  2
+(1 row)
+
+ diff_total 
+------------
+          0
+(1 row)
+
+--------------------------------------------------------------------------
+H1 · Grants de tabla (todas las columnas) vs. grants de columna
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u5" as user "postgres".
+      grantee      | table_name | privilege_type 
+-------------------+------------+----------------
+ admin_datos       | usuario    | INSERT
+ admin_datos       | usuario    | SELECT
+ admin_datos       | usuario    | UPDATE
+ postgres          | usuario    | DELETE
+ postgres          | usuario    | INSERT
+ postgres          | usuario    | REFERENCES
+ postgres          | usuario    | SELECT
+ postgres          | usuario    | TRIGGER
+ postgres          | usuario    | TRUNCATE
+ postgres          | usuario    | UPDATE
+ rol_app_escritura | usuario    | SELECT
+ rol_app_lectura   | usuario    | SELECT
+(12 rows)
+
+      grantee      | column_name | privilege_type 
+-------------------+-------------+----------------
+ admin_datos       | apellido    | INSERT
+ admin_datos       | apellido    | SELECT
+ admin_datos       | apellido    | UPDATE
+ admin_datos       | celular     | INSERT
+ admin_datos       | celular     | SELECT
+ admin_datos       | celular     | UPDATE
+ admin_datos       | contrasena  | INSERT
+ admin_datos       | contrasena  | SELECT
+ admin_datos       | contrasena  | UPDATE
+ admin_datos       | created_at  | INSERT
+ admin_datos       | created_at  | SELECT
+ admin_datos       | created_at  | UPDATE
+ admin_datos       | eliminado   | INSERT
+ admin_datos       | eliminado   | SELECT
+ admin_datos       | eliminado   | UPDATE
+ admin_datos       | id          | INSERT
+ admin_datos       | id          | SELECT
+ admin_datos       | id          | UPDATE
+ admin_datos       | mail        | INSERT
+ admin_datos       | mail        | SELECT
+ admin_datos       | mail        | UPDATE
+ admin_datos       | nombre      | INSERT
+ admin_datos       | nombre      | SELECT
+ admin_datos       | nombre      | UPDATE
+ admin_datos       | rol         | INSERT
+ admin_datos       | rol         | SELECT
+ admin_datos       | rol         | UPDATE
+ postgres          | apellido    | INSERT
+ postgres          | apellido    | REFERENCES
+ postgres          | apellido    | SELECT
+ postgres          | apellido    | UPDATE
+ postgres          | celular     | INSERT
+ postgres          | celular     | REFERENCES
+ postgres          | celular     | SELECT
+ postgres          | celular     | UPDATE
+ postgres          | contrasena  | INSERT
+ postgres          | contrasena  | REFERENCES
+ postgres          | contrasena  | SELECT
+ postgres          | contrasena  | UPDATE
+ postgres          | created_at  | INSERT
+ postgres          | created_at  | REFERENCES
+ postgres          | created_at  | SELECT
+ postgres          | created_at  | UPDATE
+ postgres          | eliminado   | INSERT
+ postgres          | eliminado   | REFERENCES
+ postgres          | eliminado   | SELECT
+ postgres          | eliminado   | UPDATE
+ postgres          | id          | INSERT
+ postgres          | id          | REFERENCES
+ postgres          | id          | SELECT
+ postgres          | id          | UPDATE
+ postgres          | mail        | INSERT
+ postgres          | mail        | REFERENCES
+ postgres          | mail        | SELECT
+ postgres          | mail        | UPDATE
+ postgres          | nombre      | INSERT
+ postgres          | nombre      | REFERENCES
+ postgres          | nombre      | SELECT
+ postgres          | nombre      | UPDATE
+ postgres          | rol         | INSERT
+ postgres          | rol         | REFERENCES
+ postgres          | rol         | SELECT
+ postgres          | rol         | UPDATE
+ rol_app_escritura | apellido    | SELECT
+ rol_app_escritura | celular     | SELECT
+ rol_app_escritura | contrasena  | SELECT
+ rol_app_escritura | created_at  | SELECT
+ rol_app_escritura | eliminado   | SELECT
+ rol_app_escritura | id          | SELECT
+ rol_app_escritura | mail        | SELECT
+ rol_app_escritura | nombre      | SELECT
+ rol_app_escritura | rol         | SELECT
+ rol_app_lectura   | apellido    | SELECT
+ rol_app_lectura   | celular     | SELECT
+ rol_app_lectura   | contrasena  | SELECT
+ rol_app_lectura   | created_at  | SELECT
+ rol_app_lectura   | eliminado   | SELECT
+ rol_app_lectura   | id          | SELECT
+ rol_app_lectura   | mail        | SELECT
+ rol_app_lectura   | nombre      | SELECT
+ rol_app_lectura   | rol         | SELECT
+ rol_soporte       | apellido    | SELECT
+ rol_soporte       | celular     | SELECT
+ rol_soporte       | celular     | UPDATE
+ rol_soporte       | created_at  | SELECT
+ rol_soporte       | eliminado   | SELECT
+ rol_soporte       | id          | SELECT
+ rol_soporte       | mail        | SELECT
+ rol_soporte       | nombre      | SELECT
+ rol_soporte       | rol         | SELECT
+(90 rows)
+
+--------------------------------------------------------------------------
+H2 · CTAS sin PK: se puede duplicar id y la verificacion no lo ve
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u5" as user "postgres".
+ constraints_usuario_anon 
+--------------------------
+                        0
+(1 row)
+
+INSERT 0 1
+ id | filas 
+----+-------
+  1 |     2
+(1 row)
+
+ usuario 
+---------
+       2
+(1 row)
+
+ usuario_anon 
+--------------
+            3
+(1 row)
+
+ diff_total 
+------------
+          0
+(1 row)
+
+==========================================================================
+CONCLUSION
+==========================================================================
+H1 ACEPTADO: app_web/roles de app tienen SELECT de tabla sobre usuario;
+   el minimo privilegio por columna solo se aplico a rol_soporte.
+H2 ACEPTADO: usuario_anon no tiene PK ni NOT NULL; el INSERT duplicado
+   paso y la verificacion por EXCEPT siguio dando diff_total = 0.
+H3 ACEPTADO: v_pedidos_cliente devuelve menos pedidos que la tabla;
+   el pedido del cliente inactivo desaparece del historial.
+H4 ACEPTADO: U5 referencia usuario/detalle_pedido; el esquema U3 tiene
+   cliente/linea_pedido. El GRANT falla con 'relation does not exist'.
+H5 DESCARTADO: la secuencia avanza, pero el pedido no queda huerfano
+   porque RAISE EXCEPTION aborta la transaccion. Los huecos de una
+   secuencia son esperables y no afectan integridad ni negocio.
+H6 ACEPTADO: ALTER DEFAULT PRIVILEGES ... GRANT SELECT (columna)
+   no es valido en PostgreSQL ('default privileges cannot be set
+   for columns'); el script U5 se corta en esa linea. Se propone
+   quitar la lista de columnas del default privilege y mantener el
+   grant por columna solo en la tabla existente, o crear una vista
+   usuario_soporte y otorgar SELECT sobre la vista.

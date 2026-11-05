@@ -1,0 +1,218 @@
+C2 · precio cambiado
+
+==========================================================================
+SEMAFORO · C2 tras subir el precio en el servidor
+==========================================================================
+
+>>> -- ============================================================================ -- TP8 · Unidad 8 · Consigna 2.b -- Semaforo de sincronizacion (se ejecuta en la tablet, SQLite). -- -- Compara cada solicitud PENDIENTE contra snapshot_servidor y guarda en -- cola_sync el estado y el motivo: -- Rojo RECHAZADO producto inexistente / no disponible / -- dado de baja / stock insuficiente -- Amarillo CONFLICTO no hay rojo, pero cambio algun precio -- Verde SIMULADO_APROBADO todo coincide -- -- Reglas: -- - Solo se evaluan las solicitudes PENDIENTE. Repetir la simulacion no -- reevalua lo ya resuelto (idempotencia del caso C6). -- - NO se modifica nada en PostgreSQL. SIMULADO_APROBADO no es una venta: -- es solo un borrador que el servidor todavia debe confirmar. -- -- Ejecutar con: sqlite3 foodstore_movil.db < semaforo.sql -- ============================================================================ PRAGMA foreign_keys = ON
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 1) Solicitudes PENDIENTE sin items: no hay nada que comparar. -- ---------------------------------------------------------------------------- UPDATE cola_sync SET estado = 'RECHAZADO', motivo = 'SIN_ITEMS', evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE estado = 'PENDIENTE' AND NOT EXISTS ( SELECT 1 FROM item_borrador i WHERE i.id_local = cola_sync.id_local )
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 2) Evaluacion del semaforo. -- Se cuentan por solicitud los items de cada condicion y se decide con -- prioridad rojo > amarillo > verde. -- ---------------------------------------------------------------------------- WITH base AS ( SELECT c.solicitud_uuid, COUNT(*) AS n_items, SUM(CASE WHEN s.producto_id IS NULL THEN 1 ELSE 0 END) AS n_inexistente, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 1 THEN 1 ELSE 0 END) AS n_baja, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 0 THEN 1 ELSE 0 END) AS n_no_disponible, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 1 AND i.cantidad > s.stock_visto THEN 1 ELSE 0 END) AS n_stock, SUM(CASE WHEN s.producto_id IS NOT NULL AND i.precio_centavos_visto <> s.precio_centavos THEN 1 ELSE 0 END) AS n_precio FROM cola_sync c JOIN item_borrador i ON i.id_local = c.id_local LEFT JOIN snapshot_servidor s ON s.producto_id = i.producto_id WHERE c.estado = 'PENDIENTE' GROUP BY c.solicitud_uuid ), evaluacion AS ( SELECT solicitud_uuid, CASE WHEN n_inexistente > 0 THEN 'RECHAZADO' WHEN n_baja > 0 THEN 'RECHAZADO' WHEN n_no_disponible > 0 THEN 'RECHAZADO' WHEN n_stock > 0 THEN 'RECHAZADO' WHEN n_precio > 0 THEN 'CONFLICTO' ELSE 'SIMULADO_APROBADO' END AS nuevo_estado, CASE WHEN n_inexistente > 0 THEN 'PRODUCTO_INEXISTENTE' WHEN n_baja > 0 THEN 'PRODUCTO_DADO_DE_BAJA' WHEN n_no_disponible > 0 THEN 'PRODUCTO_NO_DISPONIBLE' WHEN n_stock > 0 THEN 'STOCK_INSUFICIENTE' WHEN n_precio > 0 THEN 'PRECIO_CAMBIADO' ELSE 'TODO_COINCIDE' END AS nuevo_motivo FROM base ) UPDATE cola_sync SET estado = evaluacion.nuevo_estado, motivo = evaluacion.nuevo_motivo, evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') FROM evaluacion WHERE cola_sync.solicitud_uuid = evaluacion.solicitud_uuid AND cola_sync.estado = 'PENDIENTE'
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 3) Resumen y detalle para la evidencia. -- ---------------------------------------------------------------------------- SELECT 'semaforo_resumen' AS prueba, estado, motivo, count(*) AS solicitudes FROM cola_sync GROUP BY estado, motivo ORDER BY estado, motivo
+    prueba | estado | motivo | solicitudes
+    semaforo_resumen | CONFLICTO | PRECIO_CAMBIADO | 1
+
+>>> SELECT 'semaforo_detalle' AS prueba, solicitud_uuid, id_local, estado, motivo, evaluado_en FROM cola_sync ORDER BY creado_en, solicitud_uuid
+    prueba | solicitud_uuid | id_local | estado | motivo | evaluado_en
+    semaforo_detalle | a2a2a2a2-a2a2-4a2a-8a2a-a2a2a2a2a2a2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | CONFLICTO | PRECIO_CAMBIADO | 2026-11-05T01:54:38.841Z
+  [OK]    C2-A debe ser CONFLICTO/PRECIO_CAMBIADO (obtenido ('CONFLICTO', 'PRECIO_CAMBIADO', '2026-11-05T01:54:38.841Z'))
+C2-A estado: ('CONFLICTO', 'PRECIO_CAMBIADO', '2026-11-05T01:54:38.841Z')
+
+==========================================================================
+SEMAFORO · C2 tras aceptar el precio (solicitud nueva)
+==========================================================================
+
+>>> -- ============================================================================ -- TP8 · Unidad 8 · Consigna 2.b -- Semaforo de sincronizacion (se ejecuta en la tablet, SQLite). -- -- Compara cada solicitud PENDIENTE contra snapshot_servidor y guarda en -- cola_sync el estado y el motivo: -- Rojo RECHAZADO producto inexistente / no disponible / -- dado de baja / stock insuficiente -- Amarillo CONFLICTO no hay rojo, pero cambio algun precio -- Verde SIMULADO_APROBADO todo coincide -- -- Reglas: -- - Solo se evaluan las solicitudes PENDIENTE. Repetir la simulacion no -- reevalua lo ya resuelto (idempotencia del caso C6). -- - NO se modifica nada en PostgreSQL. SIMULADO_APROBADO no es una venta: -- es solo un borrador que el servidor todavia debe confirmar. -- -- Ejecutar con: sqlite3 foodstore_movil.db < semaforo.sql -- ============================================================================ PRAGMA foreign_keys = ON
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 1) Solicitudes PENDIENTE sin items: no hay nada que comparar. -- ---------------------------------------------------------------------------- UPDATE cola_sync SET estado = 'RECHAZADO', motivo = 'SIN_ITEMS', evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE estado = 'PENDIENTE' AND NOT EXISTS ( SELECT 1 FROM item_borrador i WHERE i.id_local = cola_sync.id_local )
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 2) Evaluacion del semaforo. -- Se cuentan por solicitud los items de cada condicion y se decide con -- prioridad rojo > amarillo > verde. -- ---------------------------------------------------------------------------- WITH base AS ( SELECT c.solicitud_uuid, COUNT(*) AS n_items, SUM(CASE WHEN s.producto_id IS NULL THEN 1 ELSE 0 END) AS n_inexistente, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 1 THEN 1 ELSE 0 END) AS n_baja, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 0 THEN 1 ELSE 0 END) AS n_no_disponible, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 1 AND i.cantidad > s.stock_visto THEN 1 ELSE 0 END) AS n_stock, SUM(CASE WHEN s.producto_id IS NOT NULL AND i.precio_centavos_visto <> s.precio_centavos THEN 1 ELSE 0 END) AS n_precio FROM cola_sync c JOIN item_borrador i ON i.id_local = c.id_local LEFT JOIN snapshot_servidor s ON s.producto_id = i.producto_id WHERE c.estado = 'PENDIENTE' GROUP BY c.solicitud_uuid ), evaluacion AS ( SELECT solicitud_uuid, CASE WHEN n_inexistente > 0 THEN 'RECHAZADO' WHEN n_baja > 0 THEN 'RECHAZADO' WHEN n_no_disponible > 0 THEN 'RECHAZADO' WHEN n_stock > 0 THEN 'RECHAZADO' WHEN n_precio > 0 THEN 'CONFLICTO' ELSE 'SIMULADO_APROBADO' END AS nuevo_estado, CASE WHEN n_inexistente > 0 THEN 'PRODUCTO_INEXISTENTE' WHEN n_baja > 0 THEN 'PRODUCTO_DADO_DE_BAJA' WHEN n_no_disponible > 0 THEN 'PRODUCTO_NO_DISPONIBLE' WHEN n_stock > 0 THEN 'STOCK_INSUFICIENTE' WHEN n_precio > 0 THEN 'PRECIO_CAMBIADO' ELSE 'TODO_COINCIDE' END AS nuevo_motivo FROM base ) UPDATE cola_sync SET estado = evaluacion.nuevo_estado, motivo = evaluacion.nuevo_motivo, evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') FROM evaluacion WHERE cola_sync.solicitud_uuid = evaluacion.solicitud_uuid AND cola_sync.estado = 'PENDIENTE'
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 3) Resumen y detalle para la evidencia. -- ---------------------------------------------------------------------------- SELECT 'semaforo_resumen' AS prueba, estado, motivo, count(*) AS solicitudes FROM cola_sync GROUP BY estado, motivo ORDER BY estado, motivo
+    prueba | estado | motivo | solicitudes
+    semaforo_resumen | CONFLICTO | PRECIO_CAMBIADO | 1
+    semaforo_resumen | SIMULADO_APROBADO | TODO_COINCIDE | 1
+
+>>> SELECT 'semaforo_detalle' AS prueba, solicitud_uuid, id_local, estado, motivo, evaluado_en FROM cola_sync ORDER BY creado_en, solicitud_uuid
+    prueba | solicitud_uuid | id_local | estado | motivo | evaluado_en
+    semaforo_detalle | a2a2a2a2-a2a2-4a2a-8a2a-a2a2a2a2a2a2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | CONFLICTO | PRECIO_CAMBIADO | 2026-11-05T01:54:38.841Z
+    semaforo_detalle | b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:38.867Z
+  [OK]    C2-B debe ser SIMULADO_APROBADO/TODO_COINCIDE (obtenido ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:38.867Z'))
+C2-B estado: ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:38.867Z')
+C3 · stock insuficiente
+
+==========================================================================
+SEMAFORO · C3 con cantidad 15 y stock 10
+==========================================================================
+
+>>> -- ============================================================================ -- TP8 · Unidad 8 · Consigna 2.b -- Semaforo de sincronizacion (se ejecuta en la tablet, SQLite). -- -- Compara cada solicitud PENDIENTE contra snapshot_servidor y guarda en -- cola_sync el estado y el motivo: -- Rojo RECHAZADO producto inexistente / no disponible / -- dado de baja / stock insuficiente -- Amarillo CONFLICTO no hay rojo, pero cambio algun precio -- Verde SIMULADO_APROBADO todo coincide -- -- Reglas: -- - Solo se evaluan las solicitudes PENDIENTE. Repetir la simulacion no -- reevalua lo ya resuelto (idempotencia del caso C6). -- - NO se modifica nada en PostgreSQL. SIMULADO_APROBADO no es una venta: -- es solo un borrador que el servidor todavia debe confirmar. -- -- Ejecutar con: sqlite3 foodstore_movil.db < semaforo.sql -- ============================================================================ PRAGMA foreign_keys = ON
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 1) Solicitudes PENDIENTE sin items: no hay nada que comparar. -- ---------------------------------------------------------------------------- UPDATE cola_sync SET estado = 'RECHAZADO', motivo = 'SIN_ITEMS', evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE estado = 'PENDIENTE' AND NOT EXISTS ( SELECT 1 FROM item_borrador i WHERE i.id_local = cola_sync.id_local )
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 2) Evaluacion del semaforo. -- Se cuentan por solicitud los items de cada condicion y se decide con -- prioridad rojo > amarillo > verde. -- ---------------------------------------------------------------------------- WITH base AS ( SELECT c.solicitud_uuid, COUNT(*) AS n_items, SUM(CASE WHEN s.producto_id IS NULL THEN 1 ELSE 0 END) AS n_inexistente, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 1 THEN 1 ELSE 0 END) AS n_baja, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 0 THEN 1 ELSE 0 END) AS n_no_disponible, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 1 AND i.cantidad > s.stock_visto THEN 1 ELSE 0 END) AS n_stock, SUM(CASE WHEN s.producto_id IS NOT NULL AND i.precio_centavos_visto <> s.precio_centavos THEN 1 ELSE 0 END) AS n_precio FROM cola_sync c JOIN item_borrador i ON i.id_local = c.id_local LEFT JOIN snapshot_servidor s ON s.producto_id = i.producto_id WHERE c.estado = 'PENDIENTE' GROUP BY c.solicitud_uuid ), evaluacion AS ( SELECT solicitud_uuid, CASE WHEN n_inexistente > 0 THEN 'RECHAZADO' WHEN n_baja > 0 THEN 'RECHAZADO' WHEN n_no_disponible > 0 THEN 'RECHAZADO' WHEN n_stock > 0 THEN 'RECHAZADO' WHEN n_precio > 0 THEN 'CONFLICTO' ELSE 'SIMULADO_APROBADO' END AS nuevo_estado, CASE WHEN n_inexistente > 0 THEN 'PRODUCTO_INEXISTENTE' WHEN n_baja > 0 THEN 'PRODUCTO_DADO_DE_BAJA' WHEN n_no_disponible > 0 THEN 'PRODUCTO_NO_DISPONIBLE' WHEN n_stock > 0 THEN 'STOCK_INSUFICIENTE' WHEN n_precio > 0 THEN 'PRECIO_CAMBIADO' ELSE 'TODO_COINCIDE' END AS nuevo_motivo FROM base ) UPDATE cola_sync SET estado = evaluacion.nuevo_estado, motivo = evaluacion.nuevo_motivo, evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') FROM evaluacion WHERE cola_sync.solicitud_uuid = evaluacion.solicitud_uuid AND cola_sync.estado = 'PENDIENTE'
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 3) Resumen y detalle para la evidencia. -- ---------------------------------------------------------------------------- SELECT 'semaforo_resumen' AS prueba, estado, motivo, count(*) AS solicitudes FROM cola_sync GROUP BY estado, motivo ORDER BY estado, motivo
+    prueba | estado | motivo | solicitudes
+    semaforo_resumen | CONFLICTO | PRECIO_CAMBIADO | 1
+    semaforo_resumen | RECHAZADO | STOCK_INSUFICIENTE | 1
+    semaforo_resumen | SIMULADO_APROBADO | TODO_COINCIDE | 1
+
+>>> SELECT 'semaforo_detalle' AS prueba, solicitud_uuid, id_local, estado, motivo, evaluado_en FROM cola_sync ORDER BY creado_en, solicitud_uuid
+    prueba | solicitud_uuid | id_local | estado | motivo | evaluado_en
+    semaforo_detalle | a2a2a2a2-a2a2-4a2a-8a2a-a2a2a2a2a2a2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | CONFLICTO | PRECIO_CAMBIADO | 2026-11-05T01:54:38.841Z
+    semaforo_detalle | b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:38.867Z
+    semaforo_detalle | c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3 | 3c3c3c3c-3c3c-4c3c-8c3c-3c3c3c3c3c3c | RECHAZADO | STOCK_INSUFICIENTE | 2026-11-05T01:54:38.886Z
+  [OK]    C3 debe ser RECHAZADO/STOCK_INSUFICIENTE (obtenido ('RECHAZADO', 'STOCK_INSUFICIENTE', '2026-11-05T01:54:38.886Z'))
+C3 estado: ('RECHAZADO', 'STOCK_INSUFICIENTE', '2026-11-05T01:54:38.886Z')
+C4 · producto dado de baja
+
+==========================================================================
+SEMAFORO · C4 tras la baja logica del producto 5
+==========================================================================
+
+>>> -- ============================================================================ -- TP8 · Unidad 8 · Consigna 2.b -- Semaforo de sincronizacion (se ejecuta en la tablet, SQLite). -- -- Compara cada solicitud PENDIENTE contra snapshot_servidor y guarda en -- cola_sync el estado y el motivo: -- Rojo RECHAZADO producto inexistente / no disponible / -- dado de baja / stock insuficiente -- Amarillo CONFLICTO no hay rojo, pero cambio algun precio -- Verde SIMULADO_APROBADO todo coincide -- -- Reglas: -- - Solo se evaluan las solicitudes PENDIENTE. Repetir la simulacion no -- reevalua lo ya resuelto (idempotencia del caso C6). -- - NO se modifica nada en PostgreSQL. SIMULADO_APROBADO no es una venta: -- es solo un borrador que el servidor todavia debe confirmar. -- -- Ejecutar con: sqlite3 foodstore_movil.db < semaforo.sql -- ============================================================================ PRAGMA foreign_keys = ON
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 1) Solicitudes PENDIENTE sin items: no hay nada que comparar. -- ---------------------------------------------------------------------------- UPDATE cola_sync SET estado = 'RECHAZADO', motivo = 'SIN_ITEMS', evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE estado = 'PENDIENTE' AND NOT EXISTS ( SELECT 1 FROM item_borrador i WHERE i.id_local = cola_sync.id_local )
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 2) Evaluacion del semaforo. -- Se cuentan por solicitud los items de cada condicion y se decide con -- prioridad rojo > amarillo > verde. -- ---------------------------------------------------------------------------- WITH base AS ( SELECT c.solicitud_uuid, COUNT(*) AS n_items, SUM(CASE WHEN s.producto_id IS NULL THEN 1 ELSE 0 END) AS n_inexistente, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 1 THEN 1 ELSE 0 END) AS n_baja, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 0 THEN 1 ELSE 0 END) AS n_no_disponible, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 1 AND i.cantidad > s.stock_visto THEN 1 ELSE 0 END) AS n_stock, SUM(CASE WHEN s.producto_id IS NOT NULL AND i.precio_centavos_visto <> s.precio_centavos THEN 1 ELSE 0 END) AS n_precio FROM cola_sync c JOIN item_borrador i ON i.id_local = c.id_local LEFT JOIN snapshot_servidor s ON s.producto_id = i.producto_id WHERE c.estado = 'PENDIENTE' GROUP BY c.solicitud_uuid ), evaluacion AS ( SELECT solicitud_uuid, CASE WHEN n_inexistente > 0 THEN 'RECHAZADO' WHEN n_baja > 0 THEN 'RECHAZADO' WHEN n_no_disponible > 0 THEN 'RECHAZADO' WHEN n_stock > 0 THEN 'RECHAZADO' WHEN n_precio > 0 THEN 'CONFLICTO' ELSE 'SIMULADO_APROBADO' END AS nuevo_estado, CASE WHEN n_inexistente > 0 THEN 'PRODUCTO_INEXISTENTE' WHEN n_baja > 0 THEN 'PRODUCTO_DADO_DE_BAJA' WHEN n_no_disponible > 0 THEN 'PRODUCTO_NO_DISPONIBLE' WHEN n_stock > 0 THEN 'STOCK_INSUFICIENTE' WHEN n_precio > 0 THEN 'PRECIO_CAMBIADO' ELSE 'TODO_COINCIDE' END AS nuevo_motivo FROM base ) UPDATE cola_sync SET estado = evaluacion.nuevo_estado, motivo = evaluacion.nuevo_motivo, evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') FROM evaluacion WHERE cola_sync.solicitud_uuid = evaluacion.solicitud_uuid AND cola_sync.estado = 'PENDIENTE'
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 3) Resumen y detalle para la evidencia. -- ---------------------------------------------------------------------------- SELECT 'semaforo_resumen' AS prueba, estado, motivo, count(*) AS solicitudes FROM cola_sync GROUP BY estado, motivo ORDER BY estado, motivo
+    prueba | estado | motivo | solicitudes
+    semaforo_resumen | CONFLICTO | PRECIO_CAMBIADO | 1
+    semaforo_resumen | RECHAZADO | PRODUCTO_DADO_DE_BAJA | 1
+    semaforo_resumen | RECHAZADO | STOCK_INSUFICIENTE | 1
+    semaforo_resumen | SIMULADO_APROBADO | TODO_COINCIDE | 1
+
+>>> SELECT 'semaforo_detalle' AS prueba, solicitud_uuid, id_local, estado, motivo, evaluado_en FROM cola_sync ORDER BY creado_en, solicitud_uuid
+    prueba | solicitud_uuid | id_local | estado | motivo | evaluado_en
+    semaforo_detalle | a2a2a2a2-a2a2-4a2a-8a2a-a2a2a2a2a2a2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | CONFLICTO | PRECIO_CAMBIADO | 2026-11-05T01:54:38.841Z
+    semaforo_detalle | b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:38.867Z
+    semaforo_detalle | c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3 | 3c3c3c3c-3c3c-4c3c-8c3c-3c3c3c3c3c3c | RECHAZADO | STOCK_INSUFICIENTE | 2026-11-05T01:54:38.886Z
+    semaforo_detalle | d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4 | 4d4d4d4d-4d4d-4d4d-8d4d-4d4d4d4d4d4d | RECHAZADO | PRODUCTO_DADO_DE_BAJA | 2026-11-05T01:54:39.158Z
+  [OK]    C4 debe ser RECHAZADO/PRODUCTO_DADO_DE_BAJA (obtenido ('RECHAZADO', 'PRODUCTO_DADO_DE_BAJA', '2026-11-05T01:54:39.158Z'))
+C4 estado: ('RECHAZADO', 'PRODUCTO_DADO_DE_BAJA', '2026-11-05T01:54:39.158Z')
+  [OK]    C4: el producto 5 ya no aparece en el catalogo disponible
+  [OK]    C4: la fila del producto 5 queda como lapida (disponible=0, eliminado=1)
+  [OK]    C4: el item del borrador sigue existiendo
+C4 catalogo disponible: [1, 2, 3, 4]
+C4 fila producto 5: (5, 0, 1)
+C4 items del borrador: 1
+C5 · sin cambios
+
+==========================================================================
+SEMAFORO · C5 sin cambios
+==========================================================================
+
+>>> -- ============================================================================ -- TP8 · Unidad 8 · Consigna 2.b -- Semaforo de sincronizacion (se ejecuta en la tablet, SQLite). -- -- Compara cada solicitud PENDIENTE contra snapshot_servidor y guarda en -- cola_sync el estado y el motivo: -- Rojo RECHAZADO producto inexistente / no disponible / -- dado de baja / stock insuficiente -- Amarillo CONFLICTO no hay rojo, pero cambio algun precio -- Verde SIMULADO_APROBADO todo coincide -- -- Reglas: -- - Solo se evaluan las solicitudes PENDIENTE. Repetir la simulacion no -- reevalua lo ya resuelto (idempotencia del caso C6). -- - NO se modifica nada en PostgreSQL. SIMULADO_APROBADO no es una venta: -- es solo un borrador que el servidor todavia debe confirmar. -- -- Ejecutar con: sqlite3 foodstore_movil.db < semaforo.sql -- ============================================================================ PRAGMA foreign_keys = ON
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 1) Solicitudes PENDIENTE sin items: no hay nada que comparar. -- ---------------------------------------------------------------------------- UPDATE cola_sync SET estado = 'RECHAZADO', motivo = 'SIN_ITEMS', evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE estado = 'PENDIENTE' AND NOT EXISTS ( SELECT 1 FROM item_borrador i WHERE i.id_local = cola_sync.id_local )
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 2) Evaluacion del semaforo. -- Se cuentan por solicitud los items de cada condicion y se decide con -- prioridad rojo > amarillo > verde. -- ---------------------------------------------------------------------------- WITH base AS ( SELECT c.solicitud_uuid, COUNT(*) AS n_items, SUM(CASE WHEN s.producto_id IS NULL THEN 1 ELSE 0 END) AS n_inexistente, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 1 THEN 1 ELSE 0 END) AS n_baja, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 0 THEN 1 ELSE 0 END) AS n_no_disponible, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 1 AND i.cantidad > s.stock_visto THEN 1 ELSE 0 END) AS n_stock, SUM(CASE WHEN s.producto_id IS NOT NULL AND i.precio_centavos_visto <> s.precio_centavos THEN 1 ELSE 0 END) AS n_precio FROM cola_sync c JOIN item_borrador i ON i.id_local = c.id_local LEFT JOIN snapshot_servidor s ON s.producto_id = i.producto_id WHERE c.estado = 'PENDIENTE' GROUP BY c.solicitud_uuid ), evaluacion AS ( SELECT solicitud_uuid, CASE WHEN n_inexistente > 0 THEN 'RECHAZADO' WHEN n_baja > 0 THEN 'RECHAZADO' WHEN n_no_disponible > 0 THEN 'RECHAZADO' WHEN n_stock > 0 THEN 'RECHAZADO' WHEN n_precio > 0 THEN 'CONFLICTO' ELSE 'SIMULADO_APROBADO' END AS nuevo_estado, CASE WHEN n_inexistente > 0 THEN 'PRODUCTO_INEXISTENTE' WHEN n_baja > 0 THEN 'PRODUCTO_DADO_DE_BAJA' WHEN n_no_disponible > 0 THEN 'PRODUCTO_NO_DISPONIBLE' WHEN n_stock > 0 THEN 'STOCK_INSUFICIENTE' WHEN n_precio > 0 THEN 'PRECIO_CAMBIADO' ELSE 'TODO_COINCIDE' END AS nuevo_motivo FROM base ) UPDATE cola_sync SET estado = evaluacion.nuevo_estado, motivo = evaluacion.nuevo_motivo, evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') FROM evaluacion WHERE cola_sync.solicitud_uuid = evaluacion.solicitud_uuid AND cola_sync.estado = 'PENDIENTE'
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 3) Resumen y detalle para la evidencia. -- ---------------------------------------------------------------------------- SELECT 'semaforo_resumen' AS prueba, estado, motivo, count(*) AS solicitudes FROM cola_sync GROUP BY estado, motivo ORDER BY estado, motivo
+    prueba | estado | motivo | solicitudes
+    semaforo_resumen | CONFLICTO | PRECIO_CAMBIADO | 1
+    semaforo_resumen | RECHAZADO | PRODUCTO_DADO_DE_BAJA | 1
+    semaforo_resumen | RECHAZADO | STOCK_INSUFICIENTE | 1
+    semaforo_resumen | SIMULADO_APROBADO | TODO_COINCIDE | 2
+
+>>> SELECT 'semaforo_detalle' AS prueba, solicitud_uuid, id_local, estado, motivo, evaluado_en FROM cola_sync ORDER BY creado_en, solicitud_uuid
+    prueba | solicitud_uuid | id_local | estado | motivo | evaluado_en
+    semaforo_detalle | a2a2a2a2-a2a2-4a2a-8a2a-a2a2a2a2a2a2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | CONFLICTO | PRECIO_CAMBIADO | 2026-11-05T01:54:38.841Z
+    semaforo_detalle | b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:38.867Z
+    semaforo_detalle | c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3 | 3c3c3c3c-3c3c-4c3c-8c3c-3c3c3c3c3c3c | RECHAZADO | STOCK_INSUFICIENTE | 2026-11-05T01:54:38.886Z
+    semaforo_detalle | d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4 | 4d4d4d4d-4d4d-4d4d-8d4d-4d4d4d4d4d4d | RECHAZADO | PRODUCTO_DADO_DE_BAJA | 2026-11-05T01:54:39.158Z
+    semaforo_detalle | e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5 | 5e5e5e5e-5e5e-4e5e-8e5e-5e5e5e5e5e5e | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:39.173Z
+  [OK]    C5 debe ser SIMULADO_APROBADO/TODO_COINCIDE (obtenido ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:39.173Z'))
+C5 estado: ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:39.173Z')
+C6 · idempotencia
+
+==========================================================================
+SEMAFORO · C6 primera simulacion
+==========================================================================
+
+>>> -- ============================================================================ -- TP8 · Unidad 8 · Consigna 2.b -- Semaforo de sincronizacion (se ejecuta en la tablet, SQLite). -- -- Compara cada solicitud PENDIENTE contra snapshot_servidor y guarda en -- cola_sync el estado y el motivo: -- Rojo RECHAZADO producto inexistente / no disponible / -- dado de baja / stock insuficiente -- Amarillo CONFLICTO no hay rojo, pero cambio algun precio -- Verde SIMULADO_APROBADO todo coincide -- -- Reglas: -- - Solo se evaluan las solicitudes PENDIENTE. Repetir la simulacion no -- reevalua lo ya resuelto (idempotencia del caso C6). -- - NO se modifica nada en PostgreSQL. SIMULADO_APROBADO no es una venta: -- es solo un borrador que el servidor todavia debe confirmar. -- -- Ejecutar con: sqlite3 foodstore_movil.db < semaforo.sql -- ============================================================================ PRAGMA foreign_keys = ON
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 1) Solicitudes PENDIENTE sin items: no hay nada que comparar. -- ---------------------------------------------------------------------------- UPDATE cola_sync SET estado = 'RECHAZADO', motivo = 'SIN_ITEMS', evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE estado = 'PENDIENTE' AND NOT EXISTS ( SELECT 1 FROM item_borrador i WHERE i.id_local = cola_sync.id_local )
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 2) Evaluacion del semaforo. -- Se cuentan por solicitud los items de cada condicion y se decide con -- prioridad rojo > amarillo > verde. -- ---------------------------------------------------------------------------- WITH base AS ( SELECT c.solicitud_uuid, COUNT(*) AS n_items, SUM(CASE WHEN s.producto_id IS NULL THEN 1 ELSE 0 END) AS n_inexistente, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 1 THEN 1 ELSE 0 END) AS n_baja, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 0 THEN 1 ELSE 0 END) AS n_no_disponible, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 1 AND i.cantidad > s.stock_visto THEN 1 ELSE 0 END) AS n_stock, SUM(CASE WHEN s.producto_id IS NOT NULL AND i.precio_centavos_visto <> s.precio_centavos THEN 1 ELSE 0 END) AS n_precio FROM cola_sync c JOIN item_borrador i ON i.id_local = c.id_local LEFT JOIN snapshot_servidor s ON s.producto_id = i.producto_id WHERE c.estado = 'PENDIENTE' GROUP BY c.solicitud_uuid ), evaluacion AS ( SELECT solicitud_uuid, CASE WHEN n_inexistente > 0 THEN 'RECHAZADO' WHEN n_baja > 0 THEN 'RECHAZADO' WHEN n_no_disponible > 0 THEN 'RECHAZADO' WHEN n_stock > 0 THEN 'RECHAZADO' WHEN n_precio > 0 THEN 'CONFLICTO' ELSE 'SIMULADO_APROBADO' END AS nuevo_estado, CASE WHEN n_inexistente > 0 THEN 'PRODUCTO_INEXISTENTE' WHEN n_baja > 0 THEN 'PRODUCTO_DADO_DE_BAJA' WHEN n_no_disponible > 0 THEN 'PRODUCTO_NO_DISPONIBLE' WHEN n_stock > 0 THEN 'STOCK_INSUFICIENTE' WHEN n_precio > 0 THEN 'PRECIO_CAMBIADO' ELSE 'TODO_COINCIDE' END AS nuevo_motivo FROM base ) UPDATE cola_sync SET estado = evaluacion.nuevo_estado, motivo = evaluacion.nuevo_motivo, evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') FROM evaluacion WHERE cola_sync.solicitud_uuid = evaluacion.solicitud_uuid AND cola_sync.estado = 'PENDIENTE'
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 3) Resumen y detalle para la evidencia. -- ---------------------------------------------------------------------------- SELECT 'semaforo_resumen' AS prueba, estado, motivo, count(*) AS solicitudes FROM cola_sync GROUP BY estado, motivo ORDER BY estado, motivo
+    prueba | estado | motivo | solicitudes
+    semaforo_resumen | CONFLICTO | PRECIO_CAMBIADO | 1
+    semaforo_resumen | RECHAZADO | PRODUCTO_DADO_DE_BAJA | 1
+    semaforo_resumen | RECHAZADO | STOCK_INSUFICIENTE | 1
+    semaforo_resumen | SIMULADO_APROBADO | TODO_COINCIDE | 3
+
+>>> SELECT 'semaforo_detalle' AS prueba, solicitud_uuid, id_local, estado, motivo, evaluado_en FROM cola_sync ORDER BY creado_en, solicitud_uuid
+    prueba | solicitud_uuid | id_local | estado | motivo | evaluado_en
+    semaforo_detalle | a2a2a2a2-a2a2-4a2a-8a2a-a2a2a2a2a2a2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | CONFLICTO | PRECIO_CAMBIADO | 2026-11-05T01:54:38.841Z
+    semaforo_detalle | b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:38.867Z
+    semaforo_detalle | c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3 | 3c3c3c3c-3c3c-4c3c-8c3c-3c3c3c3c3c3c | RECHAZADO | STOCK_INSUFICIENTE | 2026-11-05T01:54:38.886Z
+    semaforo_detalle | d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4 | 4d4d4d4d-4d4d-4d4d-8d4d-4d4d4d4d4d4d | RECHAZADO | PRODUCTO_DADO_DE_BAJA | 2026-11-05T01:54:39.158Z
+    semaforo_detalle | e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5 | 5e5e5e5e-5e5e-4e5e-8e5e-5e5e5e5e5e5e | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:39.173Z
+    semaforo_detalle | f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6 | 6f6f6f6f-6f6f-4f6f-8f6f-6f6f6f6f6f6f | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:39.184Z
+  [OK]    C6 primera evaluacion debe ser SIMULADO_APROBADO (obtenido ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:39.184Z'))
+  [OK]    C6: UUID repetido rechazado por clave primaria -> UNIQUE constraint failed: cola_sync.solicitud_uuid
+
+==========================================================================
+SEMAFORO · C6 repeticion de la simulacion
+==========================================================================
+
+>>> -- ============================================================================ -- TP8 · Unidad 8 · Consigna 2.b -- Semaforo de sincronizacion (se ejecuta en la tablet, SQLite). -- -- Compara cada solicitud PENDIENTE contra snapshot_servidor y guarda en -- cola_sync el estado y el motivo: -- Rojo RECHAZADO producto inexistente / no disponible / -- dado de baja / stock insuficiente -- Amarillo CONFLICTO no hay rojo, pero cambio algun precio -- Verde SIMULADO_APROBADO todo coincide -- -- Reglas: -- - Solo se evaluan las solicitudes PENDIENTE. Repetir la simulacion no -- reevalua lo ya resuelto (idempotencia del caso C6). -- - NO se modifica nada en PostgreSQL. SIMULADO_APROBADO no es una venta: -- es solo un borrador que el servidor todavia debe confirmar. -- -- Ejecutar con: sqlite3 foodstore_movil.db < semaforo.sql -- ============================================================================ PRAGMA foreign_keys = ON
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 1) Solicitudes PENDIENTE sin items: no hay nada que comparar. -- ---------------------------------------------------------------------------- UPDATE cola_sync SET estado = 'RECHAZADO', motivo = 'SIN_ITEMS', evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE estado = 'PENDIENTE' AND NOT EXISTS ( SELECT 1 FROM item_borrador i WHERE i.id_local = cola_sync.id_local )
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 2) Evaluacion del semaforo. -- Se cuentan por solicitud los items de cada condicion y se decide con -- prioridad rojo > amarillo > verde. -- ---------------------------------------------------------------------------- WITH base AS ( SELECT c.solicitud_uuid, COUNT(*) AS n_items, SUM(CASE WHEN s.producto_id IS NULL THEN 1 ELSE 0 END) AS n_inexistente, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 1 THEN 1 ELSE 0 END) AS n_baja, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 0 THEN 1 ELSE 0 END) AS n_no_disponible, SUM(CASE WHEN s.producto_id IS NOT NULL AND s.eliminado = 0 AND s.disponible = 1 AND i.cantidad > s.stock_visto THEN 1 ELSE 0 END) AS n_stock, SUM(CASE WHEN s.producto_id IS NOT NULL AND i.precio_centavos_visto <> s.precio_centavos THEN 1 ELSE 0 END) AS n_precio FROM cola_sync c JOIN item_borrador i ON i.id_local = c.id_local LEFT JOIN snapshot_servidor s ON s.producto_id = i.producto_id WHERE c.estado = 'PENDIENTE' GROUP BY c.solicitud_uuid ), evaluacion AS ( SELECT solicitud_uuid, CASE WHEN n_inexistente > 0 THEN 'RECHAZADO' WHEN n_baja > 0 THEN 'RECHAZADO' WHEN n_no_disponible > 0 THEN 'RECHAZADO' WHEN n_stock > 0 THEN 'RECHAZADO' WHEN n_precio > 0 THEN 'CONFLICTO' ELSE 'SIMULADO_APROBADO' END AS nuevo_estado, CASE WHEN n_inexistente > 0 THEN 'PRODUCTO_INEXISTENTE' WHEN n_baja > 0 THEN 'PRODUCTO_DADO_DE_BAJA' WHEN n_no_disponible > 0 THEN 'PRODUCTO_NO_DISPONIBLE' WHEN n_stock > 0 THEN 'STOCK_INSUFICIENTE' WHEN n_precio > 0 THEN 'PRECIO_CAMBIADO' ELSE 'TODO_COINCIDE' END AS nuevo_motivo FROM base ) UPDATE cola_sync SET estado = evaluacion.nuevo_estado, motivo = evaluacion.nuevo_motivo, evaluado_en = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') FROM evaluacion WHERE cola_sync.solicitud_uuid = evaluacion.solicitud_uuid AND cola_sync.estado = 'PENDIENTE'
+    OK
+
+>>> -- ---------------------------------------------------------------------------- -- 3) Resumen y detalle para la evidencia. -- ---------------------------------------------------------------------------- SELECT 'semaforo_resumen' AS prueba, estado, motivo, count(*) AS solicitudes FROM cola_sync GROUP BY estado, motivo ORDER BY estado, motivo
+    prueba | estado | motivo | solicitudes
+    semaforo_resumen | CONFLICTO | PRECIO_CAMBIADO | 1
+    semaforo_resumen | RECHAZADO | PRODUCTO_DADO_DE_BAJA | 1
+    semaforo_resumen | RECHAZADO | STOCK_INSUFICIENTE | 1
+    semaforo_resumen | SIMULADO_APROBADO | TODO_COINCIDE | 3
+
+>>> SELECT 'semaforo_detalle' AS prueba, solicitud_uuid, id_local, estado, motivo, evaluado_en FROM cola_sync ORDER BY creado_en, solicitud_uuid
+    prueba | solicitud_uuid | id_local | estado | motivo | evaluado_en
+    semaforo_detalle | a2a2a2a2-a2a2-4a2a-8a2a-a2a2a2a2a2a2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | CONFLICTO | PRECIO_CAMBIADO | 2026-11-05T01:54:38.841Z
+    semaforo_detalle | b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:38.867Z
+    semaforo_detalle | c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3 | 3c3c3c3c-3c3c-4c3c-8c3c-3c3c3c3c3c3c | RECHAZADO | STOCK_INSUFICIENTE | 2026-11-05T01:54:38.886Z
+    semaforo_detalle | d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4 | 4d4d4d4d-4d4d-4d4d-8d4d-4d4d4d4d4d4d | RECHAZADO | PRODUCTO_DADO_DE_BAJA | 2026-11-05T01:54:39.158Z
+    semaforo_detalle | e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5 | 5e5e5e5e-5e5e-4e5e-8e5e-5e5e5e5e5e5e | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:39.173Z
+    semaforo_detalle | f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6 | 6f6f6f6f-6f6f-4f6f-8f6f-6f6f6f6f6f6f | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:39.184Z
+  [OK]    C6: repetir la simulacion no reevalua la solicitud (evaluado_en igual)
+C6 antes:   ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:39.184Z')
+C6 despues: ('SIMULADO_APROBADO', 'TODO_COINCIDE', '2026-11-05T01:54:39.184Z')
+C6 filas con ese UUID: 1
+
+ESTADO FINAL DE cola_sync
+--------------------------------------------------------------------------
+a2a2a2a2-a2a2-4a2a-8a2a-a2a2a2a2a2a2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | CONFLICTO | PRECIO_CAMBIADO | 2026-11-05T01:54:38.841Z
+b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2 | 5a5a5a5a-5a5a-4a5a-8a5a-5a5a5a5a5a5a | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:38.867Z
+c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3 | 3c3c3c3c-3c3c-4c3c-8c3c-3c3c3c3c3c3c | RECHAZADO | STOCK_INSUFICIENTE | 2026-11-05T01:54:38.886Z
+d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4 | 4d4d4d4d-4d4d-4d4d-8d4d-4d4d4d4d4d4d | RECHAZADO | PRODUCTO_DADO_DE_BAJA | 2026-11-05T01:54:39.158Z
+e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5 | 5e5e5e5e-5e5e-4e5e-8e5e-5e5e5e5e5e5e | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:39.173Z
+f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6 | 6f6f6f6f-6f6f-4f6f-8f6f-6f6f6f6f6f6f | SIMULADO_APROBADO | TODO_COINCIDE | 2026-11-05T01:54:39.184Z
