@@ -1,5 +1,6 @@
 # Informe Técnico — Segunda Entrega TPI Food Store (Unidades 4 a 8)
 
+**Integrantes:** Tiago Guillot, Facundo Chacón y Joaquín Méndez  
 **Materia:** Bases de Datos II — Comisión 4  
 **Proyecto integrador:** Food Store  
 **Repositorio:** <https://github.com/VIKROOM/DB-TPS-COM4>  
