@@ -1,8 +1,9 @@
 REVISION DE CODIGO · TP8 · evidencia reproducible
 ==========================================================================
 Se levanta PostgreSQL 16 portable y se ejecutan los scripts reales
-de U3 y U5 sobre bases de prueba. Cada hallazgo se comprueba con
-consultas al motor, no por inspeccion visual.
+de U3, U4 y U5 sobre bases de prueba; cada hallazgo se comprueba con
+consultas al motor. U6/U7/U8 se revisan de forma estatica y se
+indica explicitamente que no hubo ejecucion.
 
 --------------------------------------------------------------------------
 Preparacion U3: food-store/schema.sql
@@ -335,6 +336,211 @@ INSERT 0 1
           0
 (1 row)
 
+--------------------------------------------------------------------------
+Preparacion U4: esquema base de U3 (linea_pedido)
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+CREATE TYPE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+
+--------------------------------------------------------------------------
+H7 · Instancia real con una fila que no pertenece al ejemplo
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+CREATE TABLE
+INSERT 0 1
+
+--------------------------------------------------------------------------
+H7 · tp_fnbc_control_lote.sql (DROP + recreacion del ejemplo)
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+DROP TABLE
+CREATE TABLE
+INSERT 0 3
+NOTICE:  view "v_control_lote_almacen" does not exist, skipping
+DROP VIEW
+NOTICE:  table "control_lote" does not exist, skipping
+DROP TABLE
+NOTICE:  table "responsable_deposito" does not exist, skipping
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE VIEW
+INSERT 0 2
+INSERT 0 3
+ lote_id | deposito_id | responsable_control_id 
+---------+-------------+------------------------
+     501 |          30 |                    801
+     502 |          30 |                    801
+     503 |          31 |                    802
+(3 rows)
+
+ lote_id | deposito_id | responsable_control_id 
+---------+-------------+------------------------
+(0 rows)
+
+--------------------------------------------------------------------------
+H7 · La fila real desaparecio: el script es destructivo
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+        control         | filas 
+------------------------+-------
+ fila_999_superviviente |     0
+(1 row)
+
+    control    | filas 
+---------------+-------
+ filas_totales |     3
+(1 row)
+
+--------------------------------------------------------------------------
+H8 · U4 espera detalle_pedido; el esquema final tiene linea_pedido
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+ detalle_pedido | linea_pedido 
+----------------+--------------
+                | linea_pedido
+(1 row)
+
+--------------------------------------------------------------------------
+H8 · tp_desnormalizacion_top_categorias.sql sobre el esquema final
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+NOTICE:  table "ventas_categoria_dia" does not exist, skipping
+DROP TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE FUNCTION
+CREATE FUNCTION
+NOTICE:  relation "detalle_pedido" does not exist, skipping
+DROP TRIGGER
+NOTICE:  relation "detalle_pedido" does not exist, skipping
+DROP TRIGGER
+NOTICE:  relation "detalle_pedido" does not exist, skipping
+DROP TRIGGER
+ERROR:  relation "detalle_pedido" does not exist
+ERROR:  relation "detalle_pedido" does not exist
+ERROR:  relation "detalle_pedido" does not exist
+CREATE FUNCTION
+NOTICE:  trigger "trg_sync_vcd_pedido_upd" for relation "pedido" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+ERROR:  relation "detalle_pedido" does not exist
+LINE 3: FROM detalle_pedido dp
+             ^
+ categoria | total_vendido 
+-----------+---------------
+(0 rows)
+
+ERROR:  relation "detalle_pedido" does not exist
+LINE 6:     FROM detalle_pedido dp
+                 ^
+
+--------------------------------------------------------------------------
+H8 · El script falla al crear el trigger sobre detalle_pedido
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+     tabla_creada     |       vista_fnbc       
+----------------------+------------------------
+ ventas_categoria_dia | v_control_lote_almacen
+(1 row)
+
+--------------------------------------------------------------------------
+H9 · Preparacion: DF2 violada (responsable 100 en dos depositos)
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+DROP VIEW
+DROP TABLE
+DROP TABLE
+NOTICE:  table "control_lote_almacen_backup" does not exist, skipping
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+INSERT 0 2
+
+--------------------------------------------------------------------------
+H9 · Migracion segura: RAISE EXCEPTION + ROLLBACK
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+NOTICE:  Respaldo creado: control_lote_almacen_backup
+DO
+ control  | filas 
+----------+-------
+ respaldo |     2
+(1 row)
+
+BEGIN
+CREATE TABLE
+CREATE TABLE
+INSERT 0 1
+INSERT 0 2
+CREATE VIEW
+ERROR:  Migración FNBC abortada: filas perdidas=1, filas espurias=1. ROLLBACK.
+CONTEXT:  PL/pgSQL function inline_code_block line 25 at RAISE
+[psql salio con codigo 3]
+
+--------------------------------------------------------------------------
+H9 · Tras el fallo no quedan objetos nuevos; datos y backup intactos
+--------------------------------------------------------------------------
+You are now connected to database "foodstore_u4" as user "postgres".
+ responsable_deposito | control_lote | vista 
+----------------------+--------------+-------
+                      |              | 
+(1 row)
+
+     control      | filas 
+------------------+-------
+ original_intacta |     2
+(1 row)
+
+ control | filas 
+---------+-------
+ backup  |     2
+(1 row)
+
+==========================================================================
+REVISION ESTATICA · U6/U7/U8
+==========================================================================
+
+H10 (U6) restore_test.ps1: usa --no-owner/--no-privileges=True; verifica roles/grants despues de restaurar=False
+   Detectado: la restauracion valida datos e integridad, pero no
+   comprueba que los roles ni los GRANT se hayan restaurado.
+
+H11 (U6) backup_foodstore.ps1: retencion por LastWriteTime=True; parametro RetencionDias=True
+   Detectado: copiar o restaurar archivos cambia la fecha de
+   modificacion y puede alterar que respaldos se conservan.
+
+H12 (U7) 01_exportar_pedidos_mongodb.sql: usa replace()=True; escapa barras invertidas=False
+   Detectado: solo se escapan comillas dobles; un nombre con
+   barra invertida o salto de linea generaria JavaScript invalido.
+
+H13 (U7) 01_crear_coleccion.js: db.pedidos.drop()=True
+   Detectado: idempotente en laboratorio, pero destructivo si se
+   ejecuta sobre una base ya poblada.
+
+H14 (U8) importar_snapshot.sql referencia importar_snapshot.py=True; el archivo existe=False
+   Detectado: comentario con una alternativa inexistente.
+
+H15 (U8) rutas temp de usuario Windows fijas: simular_tp8.py=True; revision_codigo.py=True
+   Detectado: la ruta de PGDATA no es portable a otra cuenta.
+   simular_tp8.py contiene una ruta literal C:\Users\...
+   revision_codigo.py contiene una ruta literal C:\Users\...
+
+H16 (U8) importar_snapshot.sql usa .import=True; simular_tp8.py usa .import=False
+   Detectado: el .sql depende del cliente sqlite3 y el runner
+   Python importa el CSV por otra via; son dos caminos distintos.
+
+H17 (U6) maintenance.sql usa DROP TABLE IF EXISTS tmp_mantenimiento=True; califica pg_temp=False
+   Detectado: sin calificar el esquema, podria borrar una tabla
+   permanente llamada tmp_mantenimiento si existiera.
+
 ==========================================================================
 CONCLUSION
 ==========================================================================
@@ -355,3 +561,32 @@ H6 ACEPTADO: ALTER DEFAULT PRIVILEGES ... GRANT SELECT (columna)
    quitar la lista de columnas del default privilege y mantener el
    grant por columna solo en la tabla existente, o crear una vista
    usuario_soporte y otorgar SELECT sobre la vista.
+H7 ACEPTADO: tp_fnbc_control_lote.sql hace DROP TABLE y recrea el
+   ejemplo; sobre una base real borra filas. Se corrige con
+   tp_fnbc_control_lote_migracion_segura.sql (backup + BEGIN/COMMIT
+   + verificacion + ROLLBACK), documentado en kiro/design.md.
+H8 ACEPTADO: U4 usa detalle_pedido y el esquema final define
+   linea_pedido; el trigger falla. Se propone vista de
+   compatibilidad detalle_pedido (como en U6) o renombrar en U4.
+H9 ACEPTADO: la migracion segura aborta con RAISE EXCEPTION ante
+   una violacion de DF2 y el ROLLBACK no deja objetos nuevos; la
+   tabla original y el backup conservan sus filas.
+H10 ACEPTADO (limitacion): restore_test.ps1 usa --no-owner y
+   --no-privileges; valida datos e integridad, no roles/GRANT. Se
+   documenta y se propone una verificacion posterior de privilegios.
+H11 ACEPTADO (mejora menor): la retencion por LastWriteTime puede
+   desalinearse si los archivos se copian; usar la fecha del nombre.
+H12 ACEPTADO: la exportacion a MongoDB escapa comillas dobles pero
+   no barras invertidas ni saltos de linea; usar json_build_object
+   o escapar tambien '\\' y '\n' antes de generar el JavaScript.
+H13 ACEPTADO (laboratorio): db.pedidos.drop() es intencional para
+   idempotencia; documentar que no debe ejecutarse en produccion.
+H14 ACEPTADO: el comentario referencia importar_snapshot.py, que no
+   existe; corregir el comentario o agregar el script Python.
+H15 ACEPTADO: la ruta PGDATA esta fijada a una cuenta Windows; usar
+   tempfile.gettempdir() para que sea portable.
+H16 DESCARTADO: importar_snapshot.sql es para el cliente sqlite3 y
+   simular_tp8.py importa el CSV por Python; son caminos distintos
+   y el runner cubre la reproducibilidad. Se documenta la diferencia.
+H17 ACEPTADO (bajo riesgo): calificar la tabla temporal como
+   pg_temp.tmp_mantenimiento para no borrar una tabla homonima.

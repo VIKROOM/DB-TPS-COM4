@@ -108,10 +108,10 @@ def encabezado_pie(canvas, doc):
     canvas.setFillColor(GRIS)
     canvas.drawString(doc.leftMargin, A4[1] - 9.4 * mm,
                       "Bases de Datos II · Comisión 4 · TP Unidad 8 — Food Store en la feria")
-    canvas.drawRightString(A4[0] - doc.rightMargin, A4[1] - 9.4 * mm, "Facundo Chacón")
+    canvas.drawRightString(A4[0] - doc.rightMargin, A4[1] - 9.4 * mm, "Tiago Guillot")
     canvas.line(doc.leftMargin, 11 * mm, A4[0] - doc.rightMargin, 11 * mm)
     canvas.drawString(doc.leftMargin, 7.6 * mm,
-                      "Repositorio: github.com/VIKROOM/DB-TPS-COM4")
+                      "Repositorio: https://github.com/VIKROOM/DB-TPS-COM4")
     canvas.restoreState()
 
 
@@ -141,7 +141,7 @@ doc = BaseDocTemplate(
     leftMargin=1.5 * cm, rightMargin=1.5 * cm,
     topMargin=1.45 * cm, bottomMargin=1.5 * cm,
     title="TP Unidad 8 - Food Store en la feria",
-    author="Facundo Chacón",
+    author="Tiago Guillot",
     subject="Bases de Datos II - Comisión 4",
 )
 frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
@@ -154,7 +154,7 @@ S.append(P("Trabajo Práctico · Unidad 8", st_titulo))
 S.append(P("Food Store en la feria: la base de la tablet y el cierre de la capa de datos", st_sub))
 S.append(P(
     "Tecnicatura Universitaria en Programación · Bases de Datos II · Comisión 4<br/>"
-    "Integrante: <b>Facundo Chacón</b> · Repositorio: github.com/VIKROOM/DB-TPS-COM4<br/>"
+    "Integrante: <b>Tiago Guillot</b> · Repositorio: https://github.com/VIKROOM/DB-TPS-COM4<br/>"
     "PostgreSQL 16 · SQLite 3.37 · MongoDB 7 (U7) · 04/11/2026",
     st_meta))
 

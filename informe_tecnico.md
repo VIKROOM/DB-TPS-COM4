@@ -3,7 +3,7 @@
 **Materia:** Bases de Datos II — Comisión 4  
 **Proyecto integrador:** Food Store  
 **Repositorio:** <https://github.com/VIKROOM/DB-TPS-COM4>  
-**Commit de referencia:** `fa0fc25` (2026-11-04)  
+**Commit de referencia:** `fa0fc25` (scripts y evidencias, 2026-11-04) y `bac780c` (este informe)  
 **Carácter:** borrador técnico para defensa oral, elaborado exclusivamente con los archivos del repositorio.
 
 ## Alcance y fuentes
@@ -11,6 +11,38 @@
 Se relevaron los módulos `TP4_U4_FNBC_Desnormalizacion`, `TP5_U5_Seguridad_FoodStore`, `TP6_U6_Mantenimiento_FoodStore`, `TP7_U7_NoSQL_FoodStore` y `TP8_U8_FoodStore`, junto con los documentos raíz de trazabilidad (`DUIA*.md`, `protocolo_seguridad.md`, `informe_concurrencia.md`). Se usaron como fuente los `.md`, `.sql`, `.js`, `.ps1`, `.py`, las salidas de `evidencias/`/`evidencia/`/`logs/` y los PDF, extraídos con `pypdf` para contrastar U4, U5 y U8.
 
 Criterio aplicado: no se completaron datos faltantes por inferencia. Cuando el repositorio no contiene un valor numérico o una salida ejecutada, se marca `[COMPLETAR DATO REAL]`; si un PDF afirma un resultado sin mostrar los números, se indica expresamente.
+
+---
+
+## 0. Checklist de cumplimiento de la consigna (U4–U8)
+
+Matriz requisito → evidencia → estado. Las salvedades entre paréntesis remiten al faltante numerado en §6.
+
+| Requisito de la entrega | Evidencia en el repositorio / informe | Estado |
+|---|---|---|
+| **U4** Refactorización de esquema heredado con redundancias validada contra DF reales y llevada a FNBC | `TP4_U4_FNBC_Desnormalizacion/` (SQL + informe); §1.1, §3.1, §4.1 | Cumple |
+| **U4** Migración sin pérdida en transacciones reversibles, especificada en Kiro, con plan de reversión | `kiro/requirements.md` (REQ-01–REQ-07), `kiro/design.md` (plan de rollback), `sql/tp_fnbc_control_lote_migracion_segura.sql` (respaldo + `BEGIN/COMMIT` + verificación + `ROLLBACK`); §1.1, §2.2, §4.1 | Cumple |
+| **U4** Desnormalización controlada documentada (cuándo, por qué, salvaguardas) | `v_control_lote_almacen`, `ventas_categoria_dia` y triggers; §1.1, §4.1 | Cumple |
+| **U5** Esquema de usuarios, roles y permisos con mínimo privilegio | `sql/01_roles_permisos_minimo_privilegio.sql`; §1.2, §4.2 | Cumple |
+| **U5** Auditoría activada y probada con simulacro de acceso indebido, reconstruido desde el log, con propuesta de contención | §2.3, §3.2; contención en `informe/Informe_TP_U5_Seguridad_FoodStore.md` §C.6 | Cumple (logs son plantillas, §6.5) |
+| **U5** Auditoría de permisos asistida por IA con decisión humana documentada | `BITACORA.md`; §4.2, §5.1 | Cumple |
+| **U6** Plan de mantenimiento completo (respaldo, restauración, estadísticas, limpieza, integridad) automatizado con OpenCode y documentado | `SPEC_U6.md`, `backup_foodstore.ps1`, `health_check.sql`, `maintenance.sql`, `restore_test.ps1`; §1.3, §4.3 | Cumple |
+| **U6** Simulacro de desastre contra reloj con informe post-incidente | §2.4, §3.3; `informe_u6.md` («Informe post-incidente») | Cumple |
+| **U7** Modelado documental de parte del dominio con consultas generadas y verificadas sobre datos reales | `TP7_U7_NoSQL_FoodStore/` (validador, carga, verificación, consultas); §1.4, §2.5, §3.4 | Cumple |
+| **U7** Comparación práctica documental vs. relacional y justificación de la tecnología | §3.4 (tabla comparativa) y §4.4 | Cumple |
+| **U8** Base SQLite con esquema y sincronización especificados en Kiro y generados con OpenCode | `movil/schema_sqlite.sql`, `movil/semaforo.sql`, `docs/kiro/*`; §1.5, §4.5, §5.1 | Cumple |
+| **U8** Sincronización simulada con conflictos probados y resolución demostrada | Casos C1–C7 y `evidencias/05_verificacion_postgres_diff.txt`; §2.6, §3.5 | Cumple |
+| **U8** Code review final asistido por IA de **todos** los scripts, con decisión humana por hallazgo | `revision_codigo.py` cubre U3/U4/U5 con ejecución real (H1–H9) y U6/U7/U8 con revisión estática (H10–H17); decisión por hallazgo en `evidencias/07_revision_codigo.txt` y §3.5/§4.5 | Cumple |
+| **U8** Capa de datos completa (relacional, documental, móvil) con specs, scripts en Git, mantenimiento y bitácora IA | Módulos U4–U8 versionados en commits por unidad; §7 | Cumple (sin etiqueta `tp8`, §6.17) |
+| **Protocolo IA** Leer, comprender, probar en copia o transacción reversible, con respaldo previo | `protocolo_seguridad.md`; §2.1, §2.2; U4 ahora usa respaldo + `BEGIN/COMMIT` + `ROLLBACK` | Cumple |
+| **Protocolo IA** No enviar PII a la IA; usar datos de prueba, anonimización y enmascaramiento | `usuario_anon`, log anonimizado; §4.2, §5.1 | Cumple |
+| **Protocolo IA** Declarar todo uso de IA en la DUIA (herramienta, finalidad, prompts/specs) | `DUIA*.md`, `BITACORA*.md`; §5.1 | Cumple (U4 sin bitácora, §6.2) |
+| **Informe** Elementos implementados por unidad | §1 | Cumple |
+| **Informe** Cómo se probó (transacciones, copias, simulacros, conflictos) | §2 | Cumple |
+| **Informe** Resultados, tiempo de restauración e informe post-incidente | §3 (RTO 4,91 s, RPO 658 s) y `informe_u6.md` | Cumple |
+| **Informe** Decisiones de diseño (FNBC, desnormalización, roles, documental vs. relacional) | §4 | Cumple |
+| **Informe** Herramientas de IA, prompts/specs, propuestas aceptadas/descartadas y justificación | §5 | Cumple |
+| **Informe** Capturas/resultados que verifiquen el funcionamiento | Referencias a `evidencias/`, `evidencia/`, `logs/`; §1–§3 | Cumple |
 
 ---
 
@@ -22,15 +54,17 @@ Módulo: `TP4_U4_FNBC_Desnormalizacion/`.
 
 | Objeto / archivo | Implementación encontrada |
 |---|---|
-| `sql/tp_fnbc_control_lote.sql` | Crea `control_lote_almacen(lote_id, deposito_id, responsable_control_id)` con PK `(lote_id, deposito_id)` y carga tres filas de ejemplo: `(501,30,801)`, `(502,30,801)`, `(503,31,802)`. Aplica la descomposición en `responsable_deposito` (PK `responsable_control_id`) y `control_lote` (PK `(lote_id, responsable_control_id)`, FK a `responsable_deposito`). Migra los datos con `INSERT ... ON CONFLICT DO NOTHING`. |
+| `sql/tp_fnbc_control_lote.sql` | Crea `control_lote_almacen(lote_id, deposito_id, responsable_control_id)` con PK `(lote_id, deposito_id)` y carga tres filas de ejemplo: `(501,30,801)`, `(502,30,801)`, `(503,31,802)`. Aplica la descomposición en `responsable_deposito` (PK `responsable_control_id`) y `control_lote` (PK `(lote_id, responsable_control_id)`, FK a `responsable_deposito`). Migra los datos con `INSERT ... ON CONFLICT DO NOTHING`. Es una demostración destructiva: usa `DROP TABLE` y recrea el ejemplo (hallazgo H7). |
+| `sql/tp_fnbc_control_lote_migracion_segura.sql` | Versión segura de la misma migración: copia `control_lote_almacen` a `control_lote_almacen_backup`, ejecuta el DDL/DML dentro de `BEGIN ... COMMIT`, verifica ida y vuelta con `detail` y `RAISE EXCEPTION` ante filas perdidas o espurias, y deja el `ROLLBACK` documentado. Su ejecución está en `TP8_U8_FoodStore/evidencias/07_revision_codigo.txt` (H9). |
 | Vista de compatibilidad | `v_control_lote_almacen` reconstruye `(lote_id, deposito_id, responsable_control_id)` mediante `JOIN` entre `control_lote` y `responsable_deposito`. Incluye consulta de equivalencia que debe devolver 0 filas. |
 | `sql/tp_desnormalizacion_top_categorias.sql` | Crea `ventas_categoria_dia(fecha, categoria_id, categoria_nombre, total_vendido, cantidad_items, cantidad_pedidos, actualizado_en)` con PK `(fecha, categoria_id)` e índice `idx_vcd_fecha_total(fecha, total_vendido DESC)`. |
 | Funciones y disparadores | `fn_recalcular_ventas_categoria_dia(date,bigint)` recalcula desde `detalle_pedido`, `producto`, `pedido` y `categoria`. `fn_trg_sync_ventas_categoria_dia()` y `fn_trg_sync_vcd_por_pedido()` sincronizan la tabla. Triggers: `trg_sync_vcd_ins`, `trg_sync_vcd_upd`, `trg_sync_vcd_del` sobre `detalle_pedido`; `trg_sync_vcd_pedido_upd` sobre `pedido`. |
 | Carga y auditoría | Carga inicial con agregación desde la fuente de verdad y consulta de auditoría que compara `ventas_categoria_dia` contra la agregación normalizada para `CURRENT_DATE`. |
 | Informe | `informe/Informe_TP_U4_FNBC_Desnormalizacion_FoodStore.md` documenta dependencias funcionales, clausuras, violación de FNBC, anomalías, descomposición sin pérdida, vista de compatibilidad, patrón de desnormalización y plantilla comparativa. |
+| Spec Kiro | `kiro/requirements.md` fija REQ-01 a REQ-07 (detección de FNBC, descomposición, migración sin pérdida, transacción reversible con rollback, desnormalización, medición y uso de IA). `kiro/design.md` desarrolla el análisis FNBC, la migración transaccional, la reversión antes y después del `COMMIT`, el diseño de `ventas_categoria_dia` y el protocolo de medición. |
 | PDF | `TP_U4_FNBC_Desnormalizacion_FoodStore.pdf` repite el análisis y afirma que la migración y la equivalencia “se verificaron”; no incluye la salida del `EXPLAIN`, los tiempos ni el resultado numérico de la auditoría. |
 
-Observaciones de consistencia: este módulo referencia `detalle_pedido`, mientras que el esquema base del repositorio (`schema.sql`) define `linea_pedido`. La correspondencia no está resuelta dentro de U4; U6 sí la resuelve con una vista de compatibilidad. Además, el PDF y el informe consideran `responsable_control_id` atributo primo por la clave alterna `{lote_id, responsable_control_id}`, mientras que los comentarios del SQL (`tp_fnbc_control_lote.sql:31`) lo listan como no primo. No cambia la conclusión de FNBC, pero conviene unificar la definición.
+Observaciones de consistencia: este módulo referencia `detalle_pedido`, mientras que el esquema base del repositorio (`schema.sql`) define `linea_pedido`. La correspondencia no está resuelta dentro de U4; U6 sí la resuelve con una vista de compatibilidad. El code review lo comprueba en H8: sobre el esquema final el trigger falla con `relation "detalle_pedido" does not exist`. Además, el PDF y el informe consideran `responsable_control_id` atributo primo por la clave alterna `{lote_id, responsable_control_id}`, mientras que los comentarios del SQL (`tp_fnbc_control_lote.sql:31`) lo listan como no primo. No cambia la conclusión de FNBC, pero conviene unificar la definición.
 
 ### 1.2 Unidad 5 — Administración y seguridad
 
@@ -88,9 +122,9 @@ Módulo: `TP8_U8_FoodStore/`.
 | Importación y UPSERT | `movil/importar_snapshot.sql` crea `snapshot_servidor`, normaliza booleanos `t/f` a 0/1 y refresca `producto_cache` con `INSERT ... ON CONFLICT(id) DO UPDATE`; no borra filas ausentes. |
 | Semáforo | `movil/semaforo.sql` evalúa solo solicitudes `PENDIENTE`, agrupa por `solicitud_uuid` y clasifica con prioridad rojo > amarillo > verde: `RECHAZADO` (producto inexistente, dado de baja, no disponible o stock insuficiente), `CONFLICTO` (`PRECIO_CAMBIADO`) o `SIMULADO_APROBADO` (`TODO_COINCIDE`). |
 | Pruebas | `movil/pruebas_sqlite.sql` prueba `COMMIT`, `ROLLBACK`, catálogo offline C1 y errores C7a (`CHECK cantidad>0`) y C7b (FK a producto inexistente). `scripts/simular_tp8.py` reproduce C2 a C6, exporta evidencias y verifica invariantes del servidor. |
-| Code review | `scripts/revision_codigo.py` ejecuta scripts reales de U3 y U5 en PostgreSQL temporal y documenta hallazgos H1 a H6 en `evidencias/07_revision_codigo.txt`. |
+| Code review | `scripts/revision_codigo.py` ejecuta scripts reales de U3, U4 y U5 en PostgreSQL temporal (H1–H9) y revisa estáticamente U6, U7 y U8 (H10–H17); la salida con la decisión humana por hallazgo está en `evidencias/07_revision_codigo.txt`. |
 | Especificación y entregables | `docs/kiro/requirements.md` (REQ-01 a REQ-04), `docs/kiro/design.md`, `docs/kiro/tasks.md`, `docs/bitacora_ia.md`, `docs/DUIA.md`, `docs/informe.pdf`, `README.md` y `evidencias/`. |
-| PDF de cierre | `docs/informe.pdf` responde las consignas 1.a, 2.c, 3.a, 3.b y 3.c: qué datos viajan y qué no, el circuito de sincronización, el mapa PostgreSQL/MongoDB/SQLite, el plan de respaldo/restauración y los hallazgos H1–H6. El plan de mantenimiento es genérico y remite a U6 para las métricas reales. |
+| PDF de cierre | `docs/informe.pdf` responde las consignas 1.a, 2.c, 3.a, 3.b y 3.c: qué datos viajan y qué no, el circuito de sincronización, el mapa PostgreSQL/MongoDB/SQLite, el plan de respaldo/restauración y los hallazgos H1–H6. El PDF se generó antes de ampliar el code review a H1–H17; la salida vigente está en `evidencias/07_revision_codigo.txt`. El plan de mantenimiento es genérico y remite a U6 para las métricas reales. |
 
 ---
 
@@ -105,7 +139,7 @@ Las pruebas del repositorio combinan tres mecanismos: ejecución sobre bases des
 - **U8/SQLite:** `movil/pruebas_sqlite.sql` usa `BEGIN ... COMMIT` para un borrador válido, `BEGIN ... ROLLBACK` para una operación descartada y `BEGIN ... ROLLBACK` tras los errores C7a/C7b. La evidencia `evidencias/02_pruebas_sqlite.txt` muestra `1_borrador_confirmado | 1 | 2 | 1`, `2_rollback_sin_filas | 0 | 0` y `C7a/C7b | 0 | 0`.
 - **U6/PostgreSQL:** el simulacro no usa una transacción única; usa una base descartable (`foodstore_restore_test`) y restaura con `--exit-on-error`. La reversibilidad se garantiza por aislamiento de la base y por la regla de no tocar `foodstore`.
 - **U5/PostgreSQL:** el script de incidente propone `BEGIN; GRANT ...; ROLLBACK;` como secuencia de prueba, pero las sentencias están comentadas y no hay una salida de ejecución propia del simulacro en el repositorio.
-- **U4/PostgreSQL:** la migración y la desnormalización se ejecutan con DDL/DML directo (`DROP`, `CREATE`, `INSERT`), sin envoltorio transaccional explícito ni evidencia de `ROLLBACK`.
+- **U4/PostgreSQL:** la demostración `tp_fnbc_control_lote.sql` es destructiva (`DROP TABLE`) y no usa transacción; el code review la detecta como H7. La versión `tp_fnbc_control_lote_migracion_segura.sql` corrige el problema: respalda, ejecuta dentro de `BEGIN ... COMMIT` y revierte con `ROLLBACK` si la verificación falla. La prueba H9 en `TP8_U8_FoodStore/evidencias/07_revision_codigo.txt` fuerza una violación de DF2 y muestra que no quedan objetos nuevos y que la tabla original y el backup conservan sus filas.
 
 ### 2.3 Simulacro de acceso indebido (U5)
 
@@ -117,6 +151,8 @@ Secuencia documentada en `sql/03_simulacro_incidente_acceso_indebido.sql` y `kir
 4. Intento de `GRANT admin_datos` a un rol de bajo privilegio.
 
 El log anonimizado `logs/log_incidente_anonimizado.txt` registra la secuencia y el resultado del intento de escalamiento: `ERROR: permission denied for role admin_datos`. El informe concluye que el esquema de mínimo privilegio se mantuvo. La reconstrucción por IA se contrastó críticamente: se aceptó la cronología, pero se descartaron inferencias de origen o fecha no sustentadas por el log.
+
+Propuesta de contención (documentada en `informe/Informe_TP_U5_Seguridad_FoodStore.md` §C.6): bloquear o restringir sesiones sospechosas, revisar membresías y privilegios, forzar cambio de credenciales si corresponde, reforzar el monitoreo/auditoría y mantener el esquema de mínimo privilegio. La decisión fue del equipo, validada contra la evidencia y no automática.
 
 Limitación de evidencia: los timestamps del log son plantillas (`[YYYY-MM-DD HH:MM:SS TZ]`), el tiempo de sesión es `<TIEMPO>` y no hay salida del `SELECT` de verificación de `information_schema.role_table_grants`.
 
@@ -175,6 +211,8 @@ Además, `servidor/03_verificacion_postgres.sql` se ejecuta antes y después de 
 | ¿Cumple FNBC? | No, por `DF2: responsable_control_id -> deposito_id`, cuyo determinante no es superclave. |
 | Descomposición | `responsable_deposito(responsable_control_id, deposito_id)` y `control_lote(lote_id, responsable_control_id)`. |
 | Equivalencia mediante vista | La consulta está definida para devolver 0 filas; no hay salida ejecutada en el módulo: `[COMPLETAR DATO REAL]`. |
+| Demostración destructiva (H7) | Sobre una instancia con la fila `(999,99,999)`, `tp_fnbc_control_lote.sql` hace `DROP TABLE` y la fila desaparece; por eso se agregó la versión segura. Evidencia: `TP8_U8_FoodStore/evidencias/07_revision_codigo.txt`. |
+| Prueba de rollback (H9) | Se fuerza una violación de DF2: la migración segura aborta con `RAISE EXCEPTION`, no deja `responsable_deposito`, `control_lote` ni `v_control_lote_almacen`, y conserva 2 filas en la tabla original y 2 en el backup. Evidencia: `TP8_U8_FoodStore/evidencias/07_revision_codigo.txt`. |
 | Tiempo EXPLAIN ANALYZE antes | `[COMPLETAR DATO REAL]`. |
 | Tiempo EXPLAIN ANALYZE después | `[COMPLETAR DATO REAL]`. |
 | Nodo dominante antes / después | `[COMPLETAR DATO REAL]`. |
@@ -190,6 +228,7 @@ El propio informe de U4 deja la tabla comparativa con placeholders: “(registra
 | Permiso a nivel de columna | `SELECT` de 8 columnas de `usuario` y `UPDATE(celular)` para `rol_soporte`. |
 | Configuración de auditoría | `log_connections=on`, `log_disconnections=on`, `log_statement='mod'`. |
 | Intento de escalamiento | Rechazado con `ERROR: permission denied for role admin_datos` (`logs/log_incidente_anonimizado.txt:11`). |
+| Propuesta de contención | Documentada en el informe de U5 §C.6: restringir sesiones sospechosas, revisar membresías, forzar credenciales, reforzar monitoreo y mantener mínimo privilegio. |
 | Conteos de anonimización por rol / eliminado | No hay salida numérica guardada: `[COMPLETAR DATO REAL]`. |
 | Total `usuario` vs `usuario_anon` | El informe y el PDF afirman que los conteos coinciden exactamente; no muestran los valores ni hay archivo de evidencia con ellos: `[COMPLETAR DATO REAL]`. |
 | Timestamps y tiempo de sesión del incidente | Plantillas sin valor real: `[COMPLETAR DATO REAL]`. |
@@ -217,6 +256,7 @@ El propio informe de U4 deja la tabla comparativa con placeholders: “(registra
 | Problema real | Primera restauración falló con `FATAL: demasiadas conexiones para el rol "mant_restore"`; `CONNECTION LIMIT 2` no alcanzaba para `pg_restore -j 4`. Se corrigió a `CONNECTION LIMIT 10` y se repitió con éxito. |
 | Mejora aplicada | Preflight de `rolconnlimit` en `restore_test.ps1`; para `-j 4` exige al menos 7 conexiones (5 del proceso principal y trabajadores, más margen). |
 | Prueba de falla de `pg_dump` | Exit code 1, log `ERROR`, sin `.dump` válido (`evidencias/fallo_pg_dump.log`). |
+| Informe post-incidente | `informe_u6.md` / `informe_u6.pdf`, con respaldo utilizado, RPO/RTO previsto vs. observado, validaciones, problema real (`CONNECTION LIMIT`) y mejora aplicada. |
 
 ### 3.4 Unidad 7
 
@@ -253,7 +293,8 @@ El propio informe de U4 deja la tabla comparativa con placeholders: “(registra
 | C7b | `FOREIGN KEY constraint failed`; 0 filas nuevas. |
 | Invariantes PostgreSQL | `pedido=3`, `linea_pedido=5`, `producto=5`, `cliente=3`, `suma_stock=115`, `importe_lineas=5750.00`. |
 | Diff de invariantes | `SIN DIFERENCIAS: pedidos, lineas, stock e importe no cambiaron.` |
-| Code review | H1, H2, H3, H4 y H6 aceptados; H5 descartado porque la prueba mostró 0 huérfanos. |
+| Code review (U3/U4/U5, ejecución real) | H1–H9: H1, H2, H3, H4, H6, H7, H8 y H9 aceptados; H5 descartado porque la prueba mostró 0 huérfanos. H7 demuestra que `tp_fnbc_control_lote.sql` borra la fila 999; H8 que `detalle_pedido` no existe en el esquema final; H9 que la migración segura revierte sin dejar objetos ni perder datos. |
+| Code review (U6/U7/U8, revisión estática) | H10–H17: H10, H11, H12, H13, H14, H15 y H17 aceptados como limitaciones o mejoras; H16 descartado porque `.import` y el runner Python son caminos distintos. Salida completa en `evidencias/07_revision_codigo.txt`. |
 
 ---
 
@@ -264,8 +305,8 @@ El propio informe de U4 deja la tabla comparativa con placeholders: “(registra
 - **Descomponer en lugar de tolerar la violación de FNBC:** `responsable_control_id -> deposito_id` genera anomalías de inserción, borrado y actualización. La descomposición separa el dato maestro (`responsable_deposito`) de la asignación operativa (`control_lote`).
 - **Unión sin pérdida:** el atributo común `responsable_control_id` es PK en `responsable_deposito` y FK en `control_lote`; cada tupla de `control_lote` se une con exactamente una de `responsable_deposito`, sin duplicar ni perder la terna original.
 - **Vista de compatibilidad:** `v_control_lote_almacen` preserva la interfaz de la relación original para no romper consultas existentes.
-- **Desnormalización controlada con triggers:** se eligió una columna precalculada mantenida por disparadores (`ventas_categoria_dia`) en lugar de una vista materializada o de un refresco manual. La función recalcula siempre desde la fuente de verdad (`detalle_pedido`, `producto`, `pedido`), no confía en incrementos ad-hoc.
-- **Reversibilidad:** la tabla redundante puede regenerarse o eliminarse sin perder información transaccional, porque no es fuente de verdad.
+- **Desnormalización controlada con triggers:** se eligió una columna precalculada mantenida por disparadores (`ventas_categoria_dia`) en lugar de una vista materializada o de un refresco manual. La función recalcula siempre desde la fuente de verdad (`detalle_pedido`, `producto`, `pedido`), no confía en incrementos ad-hoc. El nombre `detalle_pedido` no existe en el esquema final (`linea_pedido`); el desajuste se documenta como H8 y se propone una vista de compatibilidad.
+- **Reversibilidad:** la tabla redundante puede regenerarse o eliminarse sin perder información transaccional, porque no es fuente de verdad. La migración FNBC usa `tp_fnbc_control_lote_migracion_segura.sql`: respaldo previo, `BEGIN/COMMIT`, verificación de ida y vuelta y `ROLLBACK` ante discrepancia (probado en H9).
 - **Índice `(fecha, total_vendido DESC)`:** alinea el acceso del Top 5 por día con el orden solicitado.
 
 ### 4.2 Unidad 5 — Seguridad y mínimo privilegio
@@ -317,6 +358,7 @@ El propio informe de U4 deja la tabla comparativa con placeholders: “(registra
 - **Datos mínimos:** no viajan clientes, usuarios, contraseñas, mails, ventas ni logs.
 - **`STRICT` + FK + CHECK:** la base local también impone integridad, no solo la aplicación.
 - **`SIMULADO_APROBADO` no es una venta:** el estado es una simulación; la venta la confirma PostgreSQL.
+- **Code review con decisión humana:** la ejecución real se reserva para scripts que pueden correr sobre bases descartables (U3/U4/U5); U6/U7/U8 se revisan de forma estática porque requieren servicios externos o credenciales. Cada hallazgo se acepta o descarta con justificación (H5 y H16 descartados).
 
 ---
 
@@ -363,7 +405,7 @@ Los siguientes puntos no se encontraron en el repositorio o presentan evidencia 
 
 1. **U4 — métricas de ejecución ausentes.** No hay salidas de `EXPLAIN (ANALYZE, BUFFERS)` antes/después, ni tiempos, ni resultado guardado de la consulta de equivalencia o de la auditoría de sincronización. El `.md` deja placeholders explícitos.
 2. **U4 — sin bitácora/DUIA.** No hay `BITACORA` ni `DUIA` específica de la Unidad 4.
-3. **U4 — desajuste de esquema.** U4 usa `detalle_pedido`; el esquema base del repositorio define `linea_pedido`. No hay una vista de compatibilidad para ese nombre en U4 (la vista `v_control_lote_almacen` resuelve otro problema: la reconstrucción FNBC).
+3. **U4 — desajuste de esquema (comprobado en H8).** U4 usa `detalle_pedido`; el esquema base del repositorio define `linea_pedido`. El code review ejecuta el script sobre el esquema final y captura `relation "detalle_pedido" does not exist`; no hay una vista de compatibilidad para ese nombre en U4 (la vista `v_control_lote_almacen` resuelve otro problema: la reconstrucción FNBC). Se propone crear la vista o renombrar las referencias.
 4. **U5 — faltan objetos base.** No existe `CREATE TABLE usuario` ni definición de `fn_autenticar` en el repositorio; U5 los referencia.
 5. **U5 — logs sin datos reales.** `logs/fragmento_log_pruebas_auditoria.txt` y `logs/log_incidente_anonimizado.txt` usan `[YYYY-MM-DD HH:MM:SS TZ]`, `[USUARIO_PRUEBA]`, `[IP_DEV]` y `<TIEMPO>`; no hay timestamps ni sesión reales.
 6. **U5 — simulación no ejecutable.** `03_simulacro_incidente_acceso_indebido.sql` tiene las sentencias comentadas; no hay salida de la secuencia completa ni del `SELECT` de `information_schema.role_table_grants`.
@@ -379,12 +421,14 @@ Los siguientes puntos no se encontraron en el repositorio o presentan evidencia 
 16. **U8/U6 — plan de mantenimiento discordante.** El PDF de U8 declara 7 copias diarias y 4 semanales fuera del servidor; `backup_foodstore.ps1` usa retención configurable de 14 días y no implementa copias semanales. El PDF remite a U6 para RTO/RPO, pero no reproduce las métricas.
 17. **General — sin etiqueta `tp8`.** El README de U8 menciona “el `.zip` o la etiqueta `tp8`”, pero `git tag -l` no muestra etiquetas.
 18. **General — trazabilidad de IA en commits.** Los mensajes de commit no atribuyen uso de IA; la trazabilidad está solo en los `BITACORA*.md` y `DUIA*.md`.
-19. **U4 — inconsistencia sobre atributos primos.** El PDF y el informe consideran primo a `responsable_control_id` por la clave alterna `{lote_id, responsable_control_id}`, mientras que los comentarios del SQL lo listan como no primo. No afecta la conclusión de FNBC, pero debe unificarse para la defensa.
+19. **U4 — inconsistencia sobre atributos primos (aclarada).** El PDF y el informe consideran primo a `responsable_control_id` por la clave alterna `{lote_id, responsable_control_id}`, mientras que el comentario del SQL (`tp_fnbc_control_lote.sql:31`) lo lista como no primo. `kiro/design.md` unifica la definición: al formar parte de una clave candidata, es primo. No cambia la conclusión de FNBC; conviene corregir el comentario del SQL para la defensa.
+20. **U4 — spec de Kiro y plan de reversión (resuelto).** Se agregaron `kiro/requirements.md` (REQ-01–REQ-07) y `kiro/design.md`, y `sql/tp_fnbc_control_lote_migracion_segura.sql` con respaldo, `BEGIN/COMMIT`, verificación y `ROLLBACK`. La prueba H9 en `evidencias/07_revision_codigo.txt` confirma que el rollback no deja objetos ni pierde datos. Queda pendiente ejecutar las métricas de `EXPLAIN` (ítem 1).
+21. **U8 — alcance del code review (resuelto).** `scripts/revision_codigo.py` ahora ejecuta U3/U4/U5 (H1–H9) y revisa estáticamente U6/U7/U8 (H10–H17), con decisión humana por hallazgo. Queda como mejora opcional automatizar la ejecución de U6/U7/U8 en CI.
 
 ---
 
 ## 7. Conclusión operativa para defensa
 
-El repositorio cubre las cinco unidades con implementaciones verificables: U4 demuestra la descomposición FNBC y el patrón de desnormalización; U5 implementa roles, permisos por columna, auditoría, incidente y anonimización; U6 tiene el paquete más fuerte de evidencia (RPO 658 s, RTO 4,91 s, 102 PASS/0 FAIL); U7 demuestra migración documental, validador, integridad y equivalencia SQL/MongoDB; U8 demuestra el esquema SQLite, el semáforo, la idempotencia y la no modificación de PostgreSQL.
+El repositorio cubre las cinco unidades con implementaciones verificables: U4 demuestra la descomposición FNBC, el patrón de desnormalización y una migración segura con spec de Kiro y plan de reversión; U5 implementa roles, permisos por columna, auditoría, incidente y anonimización; U6 tiene el paquete más fuerte de evidencia (RPO 658 s, RTO 4,91 s, 102 PASS/0 FAIL); U7 demuestra migración documental, validador, integridad y equivalencia SQL/MongoDB; U8 demuestra el esquema SQLite, el semáforo, la idempotencia y la no modificación de PostgreSQL.
 
-Las debilidades que un examinador puede señalar son concretas: U4 no tiene métricas ejecutadas, U5 depende de objetos (`usuario`, `fn_autenticar`) que no están en el repositorio y sus logs son plantillas, y U6/U7/U8 tienen faltantes menores de nomenclatura o evidencia. Ninguna de esas debilidades invalida los resultados que sí están respaldados por salidas reales en `evidencias/`.
+Las debilidades que un examinador puede señalar son concretas: U4 no tiene métricas ejecutadas (aunque ya cuenta con spec de Kiro y plan de reversión con evidencia H9); U5 depende de objetos (`usuario`, `fn_autenticar`) que no están en el repositorio y sus logs son plantillas; U6/U7/U8 tienen faltantes menores de nomenclatura o evidencia. El code review de U8 ya cubre U3/U4/U5 con ejecución real y U6/U7/U8 con revisión estática (H1–H17). Ninguna de esas debilidades invalida los resultados respaldados por salidas reales en `evidencias/`; las métricas de U4 y los objetos base de U5 deben completarse antes de la defensa.
